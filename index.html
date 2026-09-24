@@ -9,149 +9,123 @@
 <style>
 
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #e8f8f5, #eaf3ff);
-  color: #183642;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #eef7ff;
+    color: #1f2937;
 }
 
 header {
-  background: #176b5b;
-  color: white;
-  text-align: center;
-  padding: 22px;
+    background: #1976d2;
+    color: white;
+    padding: 20px;
+    text-align: center;
 }
 
 header h1 {
-  margin: 0;
-  font-size: 30px;
-}
-
-header p {
-  margin: 8px 0 0;
+    margin: 0;
 }
 
 .container {
-  max-width: 900px;
-  margin: auto;
-  padding: 18px;
-}
-
-.panel {
-  background: white;
-  border-radius: 20px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.12);
-}
-
-h2 {
-  color: #176b5b;
-}
-
-button {
-  border: none;
-  border-radius: 14px;
-  padding: 15px 20px;
-  margin: 6px;
-  font-size: 17px;
-  cursor: pointer;
-  background: #2196f3;
-  color: white;
-}
-
-button:active {
-  transform: scale(0.96);
-}
-
-.green {
-  background: #28a745;
-}
-
-.orange {
-  background: #f39c12;
-}
-
-.red {
-  background: #e74c3c;
-}
-
-.gray {
-  background: #6c757d;
-}
-
-video {
-  width: 100%;
-  max-width: 500px;
-  border-radius: 18px;
-  display: none;
-  margin: 15px auto;
-  background: black;
+    max-width: 1100px;
+    margin: auto;
+    padding: 20px;
 }
 
 .status {
-  padding: 12px;
-  background: #eef6f5;
-  border-radius: 10px;
-  margin-top: 10px;
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
 }
 
-.game {
-  display: none;
+.connected {
+    color: green;
+    font-weight: bold;
 }
 
-.memory-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  max-width: 500px;
-  margin: auto;
+.disconnected {
+    color: red;
+    font-weight: bold;
 }
 
-.memory-card {
-  height: 80px;
-  font-size: 32px;
-  background: #5dade2;
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
 }
 
-.sequence-number {
-  font-size: 60px;
-  font-weight: bold;
-  text-align: center;
-  margin: 30px;
+.card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
 }
 
-.object-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+.card h3 {
+    margin-top: 0;
 }
 
-.object-button {
-  font-size: 40px;
-  min-height: 100px;
+.value {
+    font-size: 30px;
+    font-weight: bold;
+    margin-top: 10px;
 }
 
-.reaction-button {
-  width: 220px;
-  height: 120px;
-  font-size: 24px;
+.unit {
+    font-size: 14px;
+    color: #666;
 }
 
-.score {
-  font-size: 20px;
-  font-weight: bold;
+.sensor-section {
+    margin-top: 25px;
 }
 
-#micText {
-  min-height: 40px;
-  padding: 12px;
-  background: #f5f5f5;
-  border-radius: 10px;
+.sensor-section h2 {
+    background: #1976d2;
+    color: white;
+    padding: 12px;
+    border-radius: 10px;
+}
+
+pre {
+    background: #111827;
+    color: #d1fae5;
+    padding: 15px;
+    border-radius: 10px;
+    overflow-x: auto;
+}
+
+button {
+    border: none;
+    background: #1976d2;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+button:hover {
+    background: #125ca5;
+}
+
+video {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 12px;
+    background: black;
+}
+
+#micStatus,
+#cameraStatus,
+#speakerStatus {
+    margin: 10px 0;
 }
 
 </style>
@@ -160,962 +134,723 @@ video {
 <body>
 
 <header>
-
-<h1>🧠 CognitiveCare</h1>
-
-<p>AI-Based Cognitive Gaming and Memory Assistance Platform</p>
-
+    <h1>🧠 CognitiveCare</h1>
+    <p>AI-Based Cognitive Gaming and Memory Assistance Platform</p>
 </header>
 
 <div class="container">
 
-<!-- MOBILE HARDWARE -->
+    <!-- Firebase status -->
 
-<div class="panel">
+    <div class="status">
 
-<h2>📱 Mobile Assistance</h2>
+        <h2>📡 Firebase Connection</h2>
 
-<button class="green" onclick="startCamera()">
-📷 Start Camera
-</button>
+        <p>
+            Status:
+            <span id="firebaseStatus" class="disconnected">
+                Connecting...
+            </span>
+        </p>
 
-<button class="orange" onclick="startMicrophone()">
-🎤 Start Microphone
-</button>
+        <p>
+            Last update:
+            <span id="lastUpdate">---</span>
+        </p>
 
-<button onclick="speakWelcome()">
-🔊 Test Speaker
-</button>
+    </div>
 
-<button class="red" onclick="stopCamera()">
-⛔ Stop Camera
-</button>
 
-<video id="camera" autoplay playsinline></video>
+    <!-- SENSOR DASHBOARD -->
 
-<div class="status" id="deviceStatus">
-Waiting for permission...
+    <div class="sensor-section">
+
+        <h2>📊 Real-Time Sensor Data</h2>
+
+        <div class="grid">
+
+            <!-- FORCE -->
+
+            <div class="card">
+
+                <h3>💪 Force Sensor</h3>
+
+                <div class="value" id="force">
+                    --
+                </div>
+
+                <div class="unit">
+                    Analog Value
+                </div>
+
+            </div>
+
+
+            <!-- HEART RATE -->
+
+            <div class="card">
+
+                <h3>❤️ Heart Rate</h3>
+
+                <div class="value" id="heartRate">
+                    --
+                </div>
+
+                <div class="unit">
+                    BPM
+                </div>
+
+            </div>
+
+
+            <!-- SPO2 -->
+
+            <div class="card">
+
+                <h3>🫁 SpO₂</h3>
+
+                <div class="value" id="spo2">
+                    --
+                </div>
+
+                <div class="unit">
+                    %
+                </div>
+
+            </div>
+
+
+            <!-- ACCELERATION X -->
+
+            <div class="card">
+
+                <h3>📈 Acceleration X</h3>
+
+                <div class="value" id="accelX">
+                    --
+                </div>
+
+                <div class="unit">
+                    m/s²
+                </div>
+
+            </div>
+
+
+            <!-- ACCELERATION Y -->
+
+            <div class="card">
+
+                <h3>📈 Acceleration Y</h3>
+
+                <div class="value" id="accelY">
+                    --
+                </div>
+
+                <div class="unit">
+                    m/s²
+                </div>
+
+            </div>
+
+
+            <!-- ACCELERATION Z -->
+
+            <div class="card">
+
+                <h3>📈 Acceleration Z</h3>
+
+                <div class="value" id="accelZ">
+                    --
+                </div>
+
+                <div class="unit">
+                    m/s²
+                </div>
+
+            </div>
+
+
+            <!-- GYRO X -->
+
+            <div class="card">
+
+                <h3>🔄 Gyroscope X</h3>
+
+                <div class="value" id="gyroX">
+                    --
+                </div>
+
+                <div class="unit">
+                    °/s
+                </div>
+
+            </div>
+
+
+            <!-- GYRO Y -->
+
+            <div class="card">
+
+                <h3>🔄 Gyroscope Y</h3>
+
+                <div class="value" id="gyroY">
+                    --
+                </div>
+
+                <div class="unit">
+                    °/s
+                </div>
+
+            </div>
+
+
+            <!-- GYRO Z -->
+
+            <div class="card">
+
+                <h3>🔄 Gyroscope Z</h3>
+
+                <div class="value" id="gyroZ">
+                    --
+                </div>
+
+                <div class="unit">
+                    °/s
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- PHONE CAMERA -->
+
+    <div class="sensor-section">
+
+        <h2>📷 Mobile Camera</h2>
+
+        <button onclick="startCamera()">
+            Start Camera
+        </button>
+
+        <button onclick="stopCamera()">
+            Stop Camera
+        </button>
+
+        <p id="cameraStatus">Camera stopped</p>
+
+        <video id="camera" autoplay playsinline></video>
+
+    </div>
+
+
+    <!-- MICROPHONE -->
+
+    <div class="sensor-section">
+
+        <h2>🎤 Microphone</h2>
+
+        <button onclick="startMicrophone()">
+            Enable Microphone
+        </button>
+
+        <p id="micStatus">
+            Microphone not enabled
+        </p>
+
+    </div>
+
+
+    <!-- SPEAKER -->
+
+    <div class="sensor-section">
+
+        <h2>🔊 Voice Assistance</h2>
+
+        <button onclick="speakMessage()">
+            Test Voice
+        </button>
+
+        <p id="speakerStatus">
+            Ready
+        </p>
+
+    </div>
+
+
+    <!-- RAW FIREBASE DATA -->
+
+    <div class="sensor-section">
+
+        <h2>🔥 Raw Firebase Data</h2>
+
+        <pre id="rawData">Waiting for Firebase...</pre>
+
+    </div>
+
+
+    <!-- COGNITIVE SESSION -->
+
+    <div class="sensor-section">
+
+        <h2>🧠 Cognitive Session</h2>
+
+        <div class="card">
+
+            <p>
+                Memory Match:
+                <strong id="memoryMatch">Not Completed</strong>
+            </p>
+
+            <p>
+                Easy Sequence:
+                <strong id="sequence">Not Completed</strong>
+            </p>
+
+            <p>
+                Find Object:
+                <strong id="findObject">Not Completed</strong>
+            </p>
+
+            <p>
+                Reaction Challenge:
+                <strong id="reaction">Not Completed</strong>
+            </p>
+
+            <h3>
+                Total Score:
+                <span id="totalScore">0</span>
+            </h3>
+
+        </div>
+
+    </div>
+
 </div>
 
-</div>
 
+<!-- FIREBASE -->
 
-<!-- MICROPHONE -->
+<script type="module">
 
-<div class="panel">
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 
-<h2>🎤 Voice Assistance</h2>
+import {
+    getDatabase,
+    ref,
+    onValue
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
-<button class="orange" onclick="startVoiceRecognition()">
-🎤 Speak
-</button>
 
-<p id="micText">
-Voice input will appear here.
-</p>
+/* ==========================================
+   YOUR FIREBASE CONFIGURATION
+   ========================================== */
 
-</div>
+const firebaseConfig = {
 
+    apiKey:
+    "AIzaSyBS0nV2kUo68cZIN3wrDYahscgkVnS3Tr4",
 
-<!-- PATIENT -->
+    authDomain:
+    "cognitivecare24bm068.firebaseapp.com",
 
-<div class="panel">
+    databaseURL:
+    "https://cognitivecare24bm068-default-rtdb.asia-southeast1.firebasedatabase.app",
 
-<h2>👤 Patient Information</h2>
+    projectId:
+    "cognitivecare24bm068",
 
-<input id="patientName"
-placeholder="Patient Name"
-style="padding:12px;width:100%;margin:5px 0;">
+    storageBucket:
+    "cognitivecare24bm068.firebasestorage.app",
 
-<input id="patientID"
-placeholder="Patient ID"
-style="padding:12px;width:100%;margin:5px 0;">
+    messagingSenderId:
+    "252318365732",
 
-<button onclick="savePatient()">
-Save Patient
-</button>
+    appId:
+    "1:252318365732:web:41cff9ca72823b410e40b1",
 
-<p id="patientStatus"></p>
+    measurementId:
+    "G-4V38VHVMB0"
+};
 
-</div>
 
+/* ==========================================
+   INITIALIZE FIREBASE
+   ========================================== */
 
-<!-- GAMES -->
+const app = initializeApp(firebaseConfig);
 
-<div class="panel">
+const database = getDatabase(app);
 
-<h2>🧠 Cognitive Games</h2>
 
-<button onclick="openGame(1)">
-Level 1<br>Memory Match
-</button>
+/* ==========================================
+   ESP32 DATABASE LOCATION
+   ========================================== */
 
-<button onclick="openGame(2)">
-Level 2<br>Easy Sequence
-</button>
+const sensorRef = ref(
+    database,
+    "devices/ESP32_01"
+);
 
-<button onclick="openGame(3)">
-Level 3<br>Find Object
-</button>
 
-<button onclick="openGame(4)">
-Level 4<br>Reaction
-</button>
+/* ==========================================
+   REAL-TIME LISTENER
+   ========================================== */
 
-<p class="score">
-Total Score: <span id="totalScore">0</span>
-</p>
+onValue(
 
-</div>
+    sensorRef,
 
+    (snapshot) => {
 
-<!-- LEVEL 1 -->
+        const data = snapshot.val();
 
-<div class="panel game" id="game1">
+        console.log(
+            "Firebase data:",
+            data
+        );
 
-<h2>Level 1 — Memory Match</h2>
 
-<p>Find the matching pairs.</p>
+        if (!data) {
 
-<div class="memory-grid" id="memoryGrid"></div>
+            document.getElementById(
+                "firebaseStatus"
+            ).textContent =
+            "Connected - No sensor data";
 
-<p>
-Score: <span id="memoryScore">0</span>
-</p>
+            return;
+        }
 
-</div>
 
+        /* Firebase connected */
 
-<!-- LEVEL 2 -->
+        document.getElementById(
+            "firebaseStatus"
+        ).textContent =
+        "🟢 Connected";
 
-<div class="panel game" id="game2">
 
-<h2>Level 2 — Easy Sequence</h2>
+        document.getElementById(
+            "firebaseStatus"
+        ).className =
+        "connected";
 
-<p>Remember the number shown on the screen.</p>
 
-<div class="sequence-number" id="sequenceNumber">
-?
-</div>
+        /* =================================
+           FORCE SENSOR
+           ================================= */
 
-<button class="green" onclick="startSequence()">
-START
-</button>
+        if (data.force !== undefined) {
 
-<input
-id="sequenceAnswer"
-type="number"
-placeholder="Enter number"
-style="padding:14px;font-size:20px;width:150px;">
+            document.getElementById(
+                "force"
+            ).textContent =
+            data.force;
 
-<button onclick="checkSequence()">
-CHECK
-</button>
+        }
 
-<p id="sequenceResult"></p>
 
-</div>
+        /* =================================
+           MAX30100 HEART RATE
+           ================================= */
 
+        if (data.heartRate !== undefined) {
 
-<!-- LEVEL 3 -->
+            document.getElementById(
+                "heartRate"
+            ).textContent =
+            data.heartRate;
 
-<div class="panel game" id="game3">
+        }
 
-<h2>Level 3 — Find the Object</h2>
 
-<p id="objectQuestion">
-Find the CUP ☕
-</p>
+        /* =================================
+           MAX30100 SPO2
+           ================================= */
 
-<div class="object-grid">
+        if (data.spo2 !== undefined) {
 
-<button class="object-button" onclick="checkObject('cup')">
-☕
-</button>
+            document.getElementById(
+                "spo2"
+            ).textContent =
+            data.spo2;
 
-<button class="object-button" onclick="checkObject('phone')">
-📱
-</button>
+        }
 
-<button class="object-button" onclick="checkObject('key')">
-🔑
-</button>
 
-<button class="object-button" onclick="checkObject('glasses')">
-👓
-</button>
+        /* =================================
+           MPU6050 ACCELEROMETER
+           ================================= */
 
-</div>
+        if (data.acceleration) {
 
-<p id="objectResult"></p>
+            document.getElementById(
+                "accelX"
+            ).textContent =
+            Number(
+                data.acceleration.x
+            ).toFixed(2);
 
-</div>
 
+            document.getElementById(
+                "accelY"
+            ).textContent =
+            Number(
+                data.acceleration.y
+            ).toFixed(2);
 
-<!-- LEVEL 4 -->
 
-<div class="panel game" id="game4">
+            document.getElementById(
+                "accelZ"
+            ).textContent =
+            Number(
+                data.acceleration.z
+            ).toFixed(2);
 
-<h2>Level 4 — Reaction Challenge</h2>
+        }
 
-<p>Wait until the button says PRESS.</p>
 
-<button
-id="reactionButton"
-class="reaction-button gray"
-onclick="reactionPressed()">
+        /* =================================
+           MPU6050 GYROSCOPE
+           ================================= */
 
-WAIT
+        if (data.gyroscope) {
 
-</button>
+            document.getElementById(
+                "gyroX"
+            ).textContent =
+            Number(
+                data.gyroscope.x
+            ).toFixed(2);
 
-<p id="reactionResult"></p>
 
-</div>
+            document.getElementById(
+                "gyroY"
+            ).textContent =
+            Number(
+                data.gyroscope.y
+            ).toFixed(2);
 
 
-<!-- CAREGIVER SUMMARY -->
+            document.getElementById(
+                "gyroZ"
+            ).textContent =
+            Number(
+                data.gyroscope.z
+            ).toFixed(2);
 
-<div class="panel">
+        }
 
-<h2>📊 Session Summary</h2>
 
-<p>Patient: <span id="summaryName">---</span></p>
+        /* =================================
+           LAST UPDATE
+           ================================= */
 
-<p>Patient ID: <span id="summaryID">---</span></p>
+        if (data.timestamp) {
 
-<p>Total Score: <span id="summaryScore">0</span></p>
+            const date =
+            new Date(data.timestamp);
 
-<p>Camera: <span id="cameraState">Not started</span></p>
+            document.getElementById(
+                "lastUpdate"
+            ).textContent =
+            date.toLocaleString();
 
-<p>Microphone: <span id="micState">Not started</span></p>
+        }
 
-</div>
 
-</div>
+        /* =================================
+           RAW DATA
+           ================================= */
 
+        document.getElementById(
+            "rawData"
+        ).textContent =
+        JSON.stringify(
+            data,
+            null,
+            2
+        );
+
+    },
+
+    (error) => {
+
+        console.error(
+            "Firebase error:",
+            error
+        );
+
+        document.getElementById(
+            "firebaseStatus"
+        ).textContent =
+        "🔴 Firebase Error";
+
+        document.getElementById(
+            "firebaseStatus"
+        ).className =
+        "disconnected";
+
+    }
+
+);
+
+</script>
+
+
+<!-- PHONE CAMERA / MICROPHONE / SPEAKER -->
 
 <script>
 
 /* ==========================================
-   GLOBAL VARIABLES
-========================================== */
-
-let totalScore = 0;
+   CAMERA
+   ========================================== */
 
 let cameraStream = null;
 
-let recognition = null;
-
-let sequenceNumber = null;
-
-let targetObject = "cup";
-
-let reactionStartTime = 0;
-
-let reactionReady = false;
-
-
-/* ==========================================
-   SCORE
-========================================== */
-
-function addScore(points) {
-
-  totalScore += points;
-
-  document.getElementById("totalScore").innerText =
-    totalScore;
-
-  document.getElementById("summaryScore").innerText =
-    totalScore;
-
-}
-
-
-/* ==========================================
-   SPEAKER
-========================================== */
-
-function speak(text) {
-
-  if (!("speechSynthesis" in window)) {
-
-    alert("Speech synthesis is not supported.");
-
-    return;
-
-  }
-
-  window.speechSynthesis.cancel();
-
-  let speech =
-    new SpeechSynthesisUtterance(text);
-
-  speech.rate = 0.9;
-
-  speech.pitch = 1;
-
-  speech.volume = 1;
-
-  window.speechSynthesis.speak(speech);
-
-}
-
-
-function speakWelcome() {
-
-  speak(
-    "Welcome to CognitiveCare. " +
-    "Let's begin your cognitive exercise."
-  );
-
-}
-
-
-/* ==========================================
-   CAMERA
-========================================== */
 
 async function startCamera() {
 
-  const status =
-    document.getElementById("deviceStatus");
+    try {
 
-  const video =
-    document.getElementById("camera");
+        cameraStream =
+        await navigator.mediaDevices
+        .getUserMedia({
 
-  if (!window.isSecureContext) {
+            video: true
 
-    status.innerText =
-      "❌ This page is not HTTPS. " +
-      "Open CognitiveCare using an HTTPS address.";
+        });
 
-    return;
 
-  }
+        document.getElementById(
+            "camera"
+        ).srcObject =
+        cameraStream;
 
-  if (!navigator.mediaDevices ||
-      !navigator.mediaDevices.getUserMedia) {
 
-    status.innerText =
-      "❌ Camera API is not available.";
+        document.getElementById(
+            "cameraStatus"
+        ).textContent =
+        "🟢 Camera enabled";
 
-    return;
+    }
 
-  }
+    catch(error) {
 
-  try {
+        console.error(error);
 
-    cameraStream =
-      await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: "user"
-        },
-        audio: false
-      });
+        document.getElementById(
+            "cameraStatus"
+        ).textContent =
+        "Camera permission denied";
 
-    video.srcObject =
-      cameraStream;
-
-    video.style.display =
-      "block";
-
-    document.getElementById("cameraState")
-      .innerText =
-      "Working";
-
-    status.innerText =
-      "✅ Camera working";
-
-  }
-
-  catch(error) {
-
-    console.error(error);
-
-    status.innerText =
-      "❌ Camera permission denied or unavailable. " +
-      "Check Chrome site permissions.";
-
-  }
+    }
 
 }
 
 
-/* ==========================================
-   STOP CAMERA
-========================================== */
-
 function stopCamera() {
 
-  if (cameraStream) {
+    if (cameraStream) {
 
-    cameraStream
-      .getTracks()
-      .forEach(track => track.stop());
+        cameraStream
+        .getTracks()
+        .forEach(
+            track => track.stop()
+        );
 
-    cameraStream = null;
+        cameraStream = null;
 
-  }
+    }
 
-  document.getElementById("camera")
-    .style.display = "none";
 
-  document.getElementById("cameraState")
-    .innerText =
-    "Stopped";
+    document.getElementById(
+        "camera"
+    ).srcObject = null;
+
+
+    document.getElementById(
+        "cameraStatus"
+    ).textContent =
+    "Camera stopped";
 
 }
 
 
 /* ==========================================
    MICROPHONE
-========================================== */
+   ========================================== */
 
 async function startMicrophone() {
 
-  const status =
-    document.getElementById("deviceStatus");
+    try {
 
-  if (!window.isSecureContext) {
+        const stream =
+        await navigator.mediaDevices
+        .getUserMedia({
 
-    status.innerText =
-      "❌ Microphone requires HTTPS.";
+            audio: true
 
-    return;
+        });
 
-  }
 
-  if (!navigator.mediaDevices ||
-      !navigator.mediaDevices.getUserMedia) {
+        document.getElementById(
+            "micStatus"
+        ).textContent =
+        "🟢 Microphone enabled";
 
-    status.innerText =
-      "❌ Microphone API unavailable.";
+        console.log(
+            "Microphone enabled",
+            stream
+        );
 
-    return;
+    }
 
-  }
+    catch(error) {
 
-  try {
+        console.error(error);
 
-    const stream =
-      await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: false
-      });
+        document.getElementById(
+            "micStatus"
+        ).textContent =
+        "Microphone permission denied";
 
-    document.getElementById("micState")
-      .innerText =
-      "Working";
+    }
 
-    status.innerText =
-      "✅ Microphone permission granted.";
+}
 
-    speak(
-      "Microphone is working."
+
+/* ==========================================
+   SPEAKER
+   ========================================== */
+
+function speakMessage() {
+
+    const message =
+    "Welcome to CognitiveCare. Your sensor system is working.";
+
+    const speech =
+    new SpeechSynthesisUtterance(
+        message
     );
 
-    stream
-      .getTracks()
-      .forEach(track => track.stop());
+    speech.rate = 0.9;
 
-  }
-
-  catch(error) {
-
-    console.error(error);
-
-    status.innerText =
-      "❌ Microphone permission denied. " +
-      "Check Chrome site permissions.";
-
-  }
-
-}
-
-
-/* ==========================================
-   VOICE RECOGNITION
-========================================== */
-
-function startVoiceRecognition() {
-
-  const SpeechRecognition =
-    window.SpeechRecognition ||
-    window.webkitSpeechRecognition;
-
-  if (!SpeechRecognition) {
-
-    document.getElementById("micText")
-      .innerText =
-      "Voice recognition is not supported by this browser.";
-
-    return;
-
-  }
-
-  recognition =
-    new SpeechRecognition();
-
-  recognition.lang =
-    "en-IN";
-
-  recognition.continuous =
-    false;
-
-  recognition.interimResults =
-    false;
-
-  recognition.onstart =
-    function() {
-
-      document.getElementById("micText")
-        .innerText =
-        "🎤 Listening...";
-
-    };
-
-  recognition.onresult =
-    function(event) {
-
-      let text =
-        event.results[0][0].transcript;
-
-      document.getElementById("micText")
-        .innerText =
-        "You said: " + text;
-
-    };
-
-  recognition.onerror =
-    function(event) {
-
-      document.getElementById("micText")
-        .innerText =
-        "Microphone error: " +
-        event.error;
-
-    };
-
-  recognition.start();
-
-}
-
-
-/* ==========================================
-   PATIENT
-========================================== */
-
-function savePatient() {
-
-  let name =
-    document.getElementById("patientName")
-      .value;
-
-  let id =
-    document.getElementById("patientID")
-      .value;
-
-  document.getElementById("summaryName")
-    .innerText =
-    name || "---";
-
-  document.getElementById("summaryID")
-    .innerText =
-    id || "---";
-
-  document.getElementById("patientStatus")
-    .innerText =
-    "✅ Patient information saved.";
-
-}
-
-
-/* ==========================================
-   OPEN GAME
-========================================== */
-
-function openGame(level) {
-
-  document
-    .querySelectorAll(".game")
-    .forEach(function(game) {
-
-      game.style.display =
-        "none";
-
-    });
-
-  document.getElementById("game" + level)
-    .style.display =
-    "block";
-
-  if(level === 1) {
-
-    createMemoryGame();
-
-  }
-
-  if(level === 4) {
-
-    startReaction();
-
-  }
-
-}
-
-
-/* ==========================================
-   LEVEL 1 MEMORY
-========================================== */
-
-let memoryValues = [
-  "🍎","🍎",
-  "🍌","🍌",
-  "🍇","🍇",
-  "🍊","🍊"
-];
-
-let firstCard = null;
-
-let secondCard = null;
-
-let lockCards = false;
-
-let memoryPoints = 0;
-
-
-function createMemoryGame() {
-
-  let grid =
-    document.getElementById("memoryGrid");
-
-  grid.innerHTML = "";
-
-  firstCard = null;
-
-  secondCard = null;
-
-  lockCards = false;
-
-  memoryPoints = 0;
-
-  document.getElementById("memoryScore")
-    .innerText =
-    "0";
-
-  let shuffled =
-    [...memoryValues]
-    .sort(() => Math.random() - 0.5);
-
-  shuffled.forEach(function(value) {
-
-    let button =
-      document.createElement("button");
-
-    button.className =
-      "memory-card";
-
-    button.innerText =
-      "?";
-
-    button.dataset.value =
-      value;
-
-    button.onclick =
-      function() {
-
-        memoryClick(button);
-
-      };
-
-    grid.appendChild(button);
-
-  });
-
-}
-
-
-function memoryClick(card) {
-
-  if(lockCards ||
-     card === firstCard) {
-
-    return;
-
-  }
-
-  card.innerText =
-    card.dataset.value;
-
-  if(!firstCard) {
-
-    firstCard =
-      card;
-
-    return;
-
-  }
-
-  secondCard =
-    card;
-
-  lockCards =
-    true;
-
-  if(firstCard.dataset.value ===
-     secondCard.dataset.value) {
-
-    memoryPoints += 10;
-
-    addScore(10);
-
-    document.getElementById("memoryScore")
-      .innerText =
-      memoryPoints;
-
-    firstCard =
-      null;
-
-    secondCard =
-      null;
-
-    lockCards =
-      false;
-
-  }
-
-  else {
-
-    setTimeout(function() {
-
-      firstCard.innerText =
-        "?";
-
-      secondCard.innerText =
-        "?";
-
-      firstCard =
-        null;
-
-      secondCard =
-        null;
-
-      lockCards =
-        false;
-
-    }, 800);
-
-  }
-
-}
-
-
-/* ==========================================
-   LEVEL 2 SEQUENCE
-========================================== */
-
-function startSequence() {
-
-  sequenceNumber =
-    Math.floor(Math.random() * 5) + 1;
-
-  document.getElementById("sequenceNumber")
-    .innerText =
-    sequenceNumber;
-
-  document.getElementById("sequenceResult")
-    .innerText =
-    "Remember the number...";
-
-  document.getElementById("sequenceAnswer")
-    .value =
-    "";
-
-  speak(
-    "Remember the number."
-  );
-
-  setTimeout(function() {
-
-    document.getElementById("sequenceNumber")
-      .innerText =
-      "?";
-
-  }, 2000);
-
-}
-
-
-function checkSequence() {
-
-  let answer =
-    Number(
-      document.getElementById("sequenceAnswer")
-        .value
+    window.speechSynthesis.speak(
+        speech
     );
 
-  let result =
-    document.getElementById("sequenceResult");
-
-  if(answer === sequenceNumber) {
-
-    result.innerText =
-      "✅ Correct!";
-
-    addScore(10);
-
-    speak("Correct!");
-
-  }
-
-  else {
-
-    result.innerText =
-      "❌ Try again.";
-
-    speak("Try again.");
-
-  }
+    document.getElementById(
+        "speakerStatus"
+    ).textContent =
+    "🔊 Voice played";
 
 }
-
-
-/* ==========================================
-   LEVEL 3 OBJECT
-========================================== */
-
-function checkObject(answer) {
-
-  let result =
-    document.getElementById("objectResult");
-
-  if(answer === targetObject) {
-
-    result.innerText =
-      "✅ Correct!";
-
-    addScore(10);
-
-    speak("Correct!");
-
-  }
-
-  else {
-
-    result.innerText =
-      "❌ Try again.";
-
-    speak("Try again.");
-
-  }
-
-}
-
-
-/* ==========================================
-   LEVEL 4 REACTION
-========================================== */
-
-function startReaction() {
-
-  let button =
-    document.getElementById("reactionButton");
-
-  let result =
-    document.getElementById("reactionResult");
-
-  reactionReady =
-    false;
-
-  button.innerText =
-    "WAIT";
-
-  button.className =
-    "reaction-button gray";
-
-  result.innerText =
-    "Wait...";
-
-  let delay =
-    2000 +
-    Math.random() * 3000;
-
-  setTimeout(function() {
-
-    reactionReady =
-      true;
-
-    reactionStartTime =
-      Date.now();
-
-    button.innerText =
-      "PRESS!";
-
-    button.className =
-      "reaction-button red";
-
-    speak("Press now!");
-
-  }, delay);
-
-}
-
-
-function reactionPressed() {
-
-  let button =
-    document.getElementById("reactionButton");
-
-  let result =
-    document.getElementById("reactionResult");
-
-  if(!reactionReady) {
-
-    result.innerText =
-      "❌ Too early!";
-
-    return;
-
-  }
-
-  let reactionTime =
-    Date.now() -
-    reactionStartTime;
-
-  reactionReady =
-    false;
-
-  result.innerText =
-    "⚡ Reaction time: " +
-    reactionTime +
-    " ms";
-
-  addScore(10);
-
-  button.innerText =
-    "START AGAIN";
-
-  button.className =
-    "reaction-button green";
-
-}
-
-
-/* ==========================================
-   INITIAL MESSAGE
-========================================== */
-
-window.onload =
-  function() {
-
-    document.getElementById("deviceStatus")
-      .innerText =
-      "CognitiveCare ready. " +
-      "Allow camera/microphone permissions when requested.";
-
-  };
 
 </script>
 
