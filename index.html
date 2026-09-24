@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CognitiveCare</title>
+
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #e8f8f5, #eaf3ff);
+  color: #183642;
+}
+
+header {
+  background: #176b5b;
+  color: white;
+  text-align: center;
+  padding: 22px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 30px;
+}
+
+header p {
+  margin: 8px 0 0;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 18px;
+}
+
+.panel {
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+}
+
+h2 {
+  color: #176b5b;
+}
+
+button {
+  border: none;
+  border-radius: 14px;
+  padding: 15px 20px;
+  margin: 6px;
+  font-size: 17px;
+  cursor: pointer;
+  background: #2196f3;
+  color: white;
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+.green {
+  background: #28a745;
+}
+
+.orange {
+  background: #f39c12;
+}
+
+.red {
+  background: #e74c3c;
+}
+
+.gray {
+  background: #6c757d;
+}
+
+video {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 18px;
+  display: none;
+  margin: 15px auto;
+  background: black;
+}
+
+.status {
+  padding: 12px;
+  background: #eef6f5;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+.game {
+  display: none;
+}
+
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  max-width: 500px;
+  margin: auto;
+}
+
+.memory-card {
+  height: 80px;
+  font-size: 32px;
+  background: #5dade2;
+}
+
+.sequence-number {
+  font-size: 60px;
+  font-weight: bold;
+  text-align: center;
+  margin: 30px;
+}
+
+.object-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.object-button {
+  font-size: 40px;
+  min-height: 100px;
+}
+
+.reaction-button {
+  width: 220px;
+  height: 120px;
+  font-size: 24px;
+}
+
+.score {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+#micText {
+  min-height: 40px;
+  padding: 12px;
+  background: #f5f5f5;
+  border-radius: 10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+<h1>🧠 CognitiveCare</h1>
+
+<p>AI-Based Cognitive Gaming and Memory Assistance Platform</p>
+
+</header>
+
+<div class="container">
+
+<!-- MOBILE HARDWARE -->
+
+<div class="panel">
+
+<h2>📱 Mobile Assistance</h2>
+
+<button class="green" onclick="startCamera()">
+📷 Start Camera
+</button>
+
+<button class="orange" onclick="startMicrophone()">
+🎤 Start Microphone
+</button>
+
+<button onclick="speakWelcome()">
+🔊 Test Speaker
+</button>
+
+<button class="red" onclick="stopCamera()">
+⛔ Stop Camera
+</button>
+
+<video id="camera" autoplay playsinline></video>
+
+<div class="status" id="deviceStatus">
+Waiting for permission...
+</div>
+
+</div>
+
+
+<!-- MICROPHONE -->
+
+<div class="panel">
+
+<h2>🎤 Voice Assistance</h2>
+
+<button class="orange" onclick="startVoiceRecognition()">
+🎤 Speak
+</button>
+
+<p id="micText">
+Voice input will appear here.
+</p>
+
+</div>
+
+
+<!-- PATIENT -->
+
+<div class="panel">
+
+<h2>👤 Patient Information</h2>
+
+<input id="patientName"
+placeholder="Patient Name"
+style="padding:12px;width:100%;margin:5px 0;">
+
+<input id="patientID"
+placeholder="Patient ID"
+style="padding:12px;width:100%;margin:5px 0;">
+
+<button onclick="savePatient()">
+Save Patient
+</button>
+
+<p id="patientStatus"></p>
+
+</div>
+
+
+<!-- GAMES -->
+
+<div class="panel">
+
+<h2>🧠 Cognitive Games</h2>
+
+<button onclick="openGame(1)">
+Level 1<br>Memory Match
+</button>
+
+<button onclick="openGame(2)">
+Level 2<br>Easy Sequence
+</button>
+
+<button onclick="openGame(3)">
+Level 3<br>Find Object
+</button>
+
+<button onclick="openGame(4)">
+Level 4<br>Reaction
+</button>
+
+<p class="score">
+Total Score: <span id="totalScore">0</span>
+</p>
+
+</div>
+
+
+<!-- LEVEL 1 -->
+
+<div class="panel game" id="game1">
+
+<h2>Level 1 — Memory Match</h2>
+
+<p>Find the matching pairs.</p>
+
+<div class="memory-grid" id="memoryGrid"></div>
+
+<p>
+Score: <span id="memoryScore">0</span>
+</p>
+
+</div>
+
+
+<!-- LEVEL 2 -->
+
+<div class="panel game" id="game2">
+
+<h2>Level 2 — Easy Sequence</h2>
+
+<p>Remember the number shown on the screen.</p>
+
+<div class="sequence-number" id="sequenceNumber">
+?
+</div>
+
+<button class="green" onclick="startSequence()">
+START
+</button>
+
+<input
+id="sequenceAnswer"
+type="number"
+placeholder="Enter number"
+style="padding:14px;font-size:20px;width:150px;">
+
+<button onclick="checkSequence()">
+CHECK
+</button>
+
+<p id="sequenceResult"></p>
+
+</div>
+
+
+<!-- LEVEL 3 -->
+
+<div class="panel game" id="game3">
+
+<h2>Level 3 — Find the Object</h2>
+
+<p id="objectQuestion">
+Find the CUP ☕
+</p>
+
+<div class="object-grid">
+
+<button class="object-button" onclick="checkObject('cup')">
+☕
+</button>
+
+<button class="object-button" onclick="checkObject('phone')">
+📱
+</button>
+
+<button class="object-button" onclick="checkObject('key')">
+🔑
+</button>
+
+<button class="object-button" onclick="checkObject('glasses')">
+👓
+</button>
+
+</div>
+
+<p id="objectResult"></p>
+
+</div>
+
+
+<!-- LEVEL 4 -->
+
+<div class="panel game" id="game4">
+
+<h2>Level 4 — Reaction Challenge</h2>
+
+<p>Wait until the button says PRESS.</p>
+
+<button
+id="reactionButton"
+class="reaction-button gray"
+onclick="reactionPressed()">
+
+WAIT
+
+</button>
+
+<p id="reactionResult"></p>
+
+</div>
+
+
+<!-- CAREGIVER SUMMARY -->
+
+<div class="panel">
+
+<h2>📊 Session Summary</h2>
+
+<p>Patient: <span id="summaryName">---</span></p>
+
+<p>Patient ID: <span id="summaryID">---</span></p>
+
+<p>Total Score: <span id="summaryScore">0</span></p>
+
+<p>Camera: <span id="cameraState">Not started</span></p>
+
+<p>Microphone: <span id="micState">Not started</span></p>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* ==========================================
+   GLOBAL VARIABLES
+========================================== */
+
+let totalScore = 0;
+
+let cameraStream = null;
+
+let recognition = null;
+
+let sequenceNumber = null;
+
+let targetObject = "cup";
+
+let reactionStartTime = 0;
+
+let reactionReady = false;
+
+
+/* ==========================================
+   SCORE
+========================================== */
+
+function addScore(points) {
+
+  totalScore += points;
+
+  document.getElementById("totalScore").innerText =
+    totalScore;
+
+  document.getElementById("summaryScore").innerText =
+    totalScore;
+
+}
+
+
+/* ==========================================
+   SPEAKER
+========================================== */
+
+function speak(text) {
+
+  if (!("speechSynthesis" in window)) {
+
+    alert("Speech synthesis is not supported.");
+
+    return;
+
+  }
+
+  window.speechSynthesis.cancel();
+
+  let speech =
+    new SpeechSynthesisUtterance(text);
+
+  speech.rate = 0.9;
+
+  speech.pitch = 1;
+
+  speech.volume = 1;
+
+  window.speechSynthesis.speak(speech);
+
+}
+
+
+function speakWelcome() {
+
+  speak(
+    "Welcome to CognitiveCare. " +
+    "Let's begin your cognitive exercise."
+  );
+
+}
+
+
+/* ==========================================
+   CAMERA
+========================================== */
+
+async function startCamera() {
+
+  const status =
+    document.getElementById("deviceStatus");
+
+  const video =
+    document.getElementById("camera");
+
+  if (!window.isSecureContext) {
+
+    status.innerText =
+      "❌ This page is not HTTPS. " +
+      "Open CognitiveCare using an HTTPS address.";
+
+    return;
+
+  }
+
+  if (!navigator.mediaDevices ||
+      !navigator.mediaDevices.getUserMedia) {
+
+    status.innerText =
+      "❌ Camera API is not available.";
+
+    return;
+
+  }
+
+  try {
+
+    cameraStream =
+      await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: "user"
+        },
+        audio: false
+      });
+
+    video.srcObject =
+      cameraStream;
+
+    video.style.display =
+      "block";
+
+    document.getElementById("cameraState")
+      .innerText =
+      "Working";
+
+    status.innerText =
+      "✅ Camera working";
+
+  }
+
+  catch(error) {
+
+    console.error(error);
+
+    status.innerText =
+      "❌ Camera permission denied or unavailable. " +
+      "Check Chrome site permissions.";
+
+  }
+
+}
+
+
+/* ==========================================
+   STOP CAMERA
+========================================== */
+
+function stopCamera() {
+
+  if (cameraStream) {
+
+    cameraStream
+      .getTracks()
+      .forEach(track => track.stop());
+
+    cameraStream = null;
+
+  }
+
+  document.getElementById("camera")
+    .style.display = "none";
+
+  document.getElementById("cameraState")
+    .innerText =
+    "Stopped";
+
+}
+
+
+/* ==========================================
+   MICROPHONE
+========================================== */
+
+async function startMicrophone() {
+
+  const status =
+    document.getElementById("deviceStatus");
+
+  if (!window.isSecureContext) {
+
+    status.innerText =
+      "❌ Microphone requires HTTPS.";
+
+    return;
+
+  }
+
+  if (!navigator.mediaDevices ||
+      !navigator.mediaDevices.getUserMedia) {
+
+    status.innerText =
+      "❌ Microphone API unavailable.";
+
+    return;
+
+  }
+
+  try {
+
+    const stream =
+      await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: false
+      });
+
+    document.getElementById("micState")
+      .innerText =
+      "Working";
+
+    status.innerText =
+      "✅ Microphone permission granted.";
+
+    speak(
+      "Microphone is working."
+    );
+
+    stream
+      .getTracks()
+      .forEach(track => track.stop());
+
+  }
+
+  catch(error) {
+
+    console.error(error);
+
+    status.innerText =
+      "❌ Microphone permission denied. " +
+      "Check Chrome site permissions.";
+
+  }
+
+}
+
+
+/* ==========================================
+   VOICE RECOGNITION
+========================================== */
+
+function startVoiceRecognition() {
+
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+
+    document.getElementById("micText")
+      .innerText =
+      "Voice recognition is not supported by this browser.";
+
+    return;
+
+  }
+
+  recognition =
+    new SpeechRecognition();
+
+  recognition.lang =
+    "en-IN";
+
+  recognition.continuous =
+    false;
+
+  recognition.interimResults =
+    false;
+
+  recognition.onstart =
+    function() {
+
+      document.getElementById("micText")
+        .innerText =
+        "🎤 Listening...";
+
+    };
+
+  recognition.onresult =
+    function(event) {
+
+      let text =
+        event.results[0][0].transcript;
+
+      document.getElementById("micText")
+        .innerText =
+        "You said: " + text;
+
+    };
+
+  recognition.onerror =
+    function(event) {
+
+      document.getElementById("micText")
+        .innerText =
+        "Microphone error: " +
+        event.error;
+
+    };
+
+  recognition.start();
+
+}
+
+
+/* ==========================================
+   PATIENT
+========================================== */
+
+function savePatient() {
+
+  let name =
+    document.getElementById("patientName")
+      .value;
+
+  let id =
+    document.getElementById("patientID")
+      .value;
+
+  document.getElementById("summaryName")
+    .innerText =
+    name || "---";
+
+  document.getElementById("summaryID")
+    .innerText =
+    id || "---";
+
+  document.getElementById("patientStatus")
+    .innerText =
+    "✅ Patient information saved.";
+
+}
+
+
+/* ==========================================
+   OPEN GAME
+========================================== */
+
+function openGame(level) {
+
+  document
+    .querySelectorAll(".game")
+    .forEach(function(game) {
+
+      game.style.display =
+        "none";
+
+    });
+
+  document.getElementById("game" + level)
+    .style.display =
+    "block";
+
+  if(level === 1) {
+
+    createMemoryGame();
+
+  }
+
+  if(level === 4) {
+
+    startReaction();
+
+  }
+
+}
+
+
+/* ==========================================
+   LEVEL 1 MEMORY
+========================================== */
+
+let memoryValues = [
+  "🍎","🍎",
+  "🍌","🍌",
+  "🍇","🍇",
+  "🍊","🍊"
+];
+
+let firstCard = null;
+
+let secondCard = null;
+
+let lockCards = false;
+
+let memoryPoints = 0;
+
+
+function createMemoryGame() {
+
+  let grid =
+    document.getElementById("memoryGrid");
+
+  grid.innerHTML = "";
+
+  firstCard = null;
+
+  secondCard = null;
+
+  lockCards = false;
+
+  memoryPoints = 0;
+
+  document.getElementById("memoryScore")
+    .innerText =
+    "0";
+
+  let shuffled =
+    [...memoryValues]
+    .sort(() => Math.random() - 0.5);
+
+  shuffled.forEach(function(value) {
+
+    let button =
+      document.createElement("button");
+
+    button.className =
+      "memory-card";
+
+    button.innerText =
+      "?";
+
+    button.dataset.value =
+      value;
+
+    button.onclick =
+      function() {
+
+        memoryClick(button);
+
+      };
+
+    grid.appendChild(button);
+
+  });
+
+}
+
+
+function memoryClick(card) {
+
+  if(lockCards ||
+     card === firstCard) {
+
+    return;
+
+  }
+
+  card.innerText =
+    card.dataset.value;
+
+  if(!firstCard) {
+
+    firstCard =
+      card;
+
+    return;
+
+  }
+
+  secondCard =
+    card;
+
+  lockCards =
+    true;
+
+  if(firstCard.dataset.value ===
+     secondCard.dataset.value) {
+
+    memoryPoints += 10;
+
+    addScore(10);
+
+    document.getElementById("memoryScore")
+      .innerText =
+      memoryPoints;
+
+    firstCard =
+      null;
+
+    secondCard =
+      null;
+
+    lockCards =
+      false;
+
+  }
+
+  else {
+
+    setTimeout(function() {
+
+      firstCard.innerText =
+        "?";
+
+      secondCard.innerText =
+        "?";
+
+      firstCard =
+        null;
+
+      secondCard =
+        null;
+
+      lockCards =
+        false;
+
+    }, 800);
+
+  }
+
+}
+
+
+/* ==========================================
+   LEVEL 2 SEQUENCE
+========================================== */
+
+function startSequence() {
+
+  sequenceNumber =
+    Math.floor(Math.random() * 5) + 1;
+
+  document.getElementById("sequenceNumber")
+    .innerText =
+    sequenceNumber;
+
+  document.getElementById("sequenceResult")
+    .innerText =
+    "Remember the number...";
+
+  document.getElementById("sequenceAnswer")
+    .value =
+    "";
+
+  speak(
+    "Remember the number."
+  );
+
+  setTimeout(function() {
+
+    document.getElementById("sequenceNumber")
+      .innerText =
+      "?";
+
+  }, 2000);
+
+}
+
+
+function checkSequence() {
+
+  let answer =
+    Number(
+      document.getElementById("sequenceAnswer")
+        .value
+    );
+
+  let result =
+    document.getElementById("sequenceResult");
+
+  if(answer === sequenceNumber) {
+
+    result.innerText =
+      "✅ Correct!";
+
+    addScore(10);
+
+    speak("Correct!");
+
+  }
+
+  else {
+
+    result.innerText =
+      "❌ Try again.";
+
+    speak("Try again.");
+
+  }
+
+}
+
+
+/* ==========================================
+   LEVEL 3 OBJECT
+========================================== */
+
+function checkObject(answer) {
+
+  let result =
+    document.getElementById("objectResult");
+
+  if(answer === targetObject) {
+
+    result.innerText =
+      "✅ Correct!";
+
+    addScore(10);
+
+    speak("Correct!");
+
+  }
+
+  else {
+
+    result.innerText =
+      "❌ Try again.";
+
+    speak("Try again.");
+
+  }
+
+}
+
+
+/* ==========================================
+   LEVEL 4 REACTION
+========================================== */
+
+function startReaction() {
+
+  let button =
+    document.getElementById("reactionButton");
+
+  let result =
+    document.getElementById("reactionResult");
+
+  reactionReady =
+    false;
+
+  button.innerText =
+    "WAIT";
+
+  button.className =
+    "reaction-button gray";
+
+  result.innerText =
+    "Wait...";
+
+  let delay =
+    2000 +
+    Math.random() * 3000;
+
+  setTimeout(function() {
+
+    reactionReady =
+      true;
+
+    reactionStartTime =
+      Date.now();
+
+    button.innerText =
+      "PRESS!";
+
+    button.className =
+      "reaction-button red";
+
+    speak("Press now!");
+
+  }, delay);
+
+}
+
+
+function reactionPressed() {
+
+  let button =
+    document.getElementById("reactionButton");
+
+  let result =
+    document.getElementById("reactionResult");
+
+  if(!reactionReady) {
+
+    result.innerText =
+      "❌ Too early!";
+
+    return;
+
+  }
+
+  let reactionTime =
+    Date.now() -
+    reactionStartTime;
+
+  reactionReady =
+    false;
+
+  result.innerText =
+    "⚡ Reaction time: " +
+    reactionTime +
+    " ms";
+
+  addScore(10);
+
+  button.innerText =
+    "START AGAIN";
+
+  button.className =
+    "reaction-button green";
+
+}
+
+
+/* ==========================================
+   INITIAL MESSAGE
+========================================== */
+
+window.onload =
+  function() {
+
+    document.getElementById("deviceStatus")
+      .innerText =
+      "CognitiveCare ready. " +
+      "Allow camera/microphone permissions when requested.";
+
+  };
+
+</script>
+
+</body>
+</html>
