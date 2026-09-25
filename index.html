@@ -6,8 +6,11 @@
 
 <title>CognitiveCare</title>
 
-<style>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-database-compat.js"></script>
 
+<style>
 * {
     box-sizing: border-box;
 }
@@ -15,119 +18,352 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #eef7ff;
-    color: #1f2937;
+    background: #eef8ff;
+    color: #18324a;
 }
 
 header {
-    background: #1976d2;
-    color: white;
-    padding: 20px;
+    background: #d9f0ff;
+    padding: 18px;
     text-align: center;
+    border-bottom: 2px solid #b9def5;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 header h1 {
     margin: 0;
+    font-size: 30px;
+}
+
+header p {
+    margin: 5px 0 0;
+    color: #527086;
 }
 
 .container {
+    width: 94%;
     max-width: 1100px;
     margin: auto;
-    padding: 20px;
-}
-
-.status {
-    background: white;
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-}
-
-.connected {
-    color: green;
-    font-weight: bold;
-}
-
-.disconnected {
-    color: red;
-    font-weight: bold;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 15px;
+    padding: 20px 0 50px;
 }
 
 .card {
     background: white;
-    border-radius: 15px;
+    border-radius: 18px;
     padding: 20px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    box-shadow: 0 5px 18px rgba(40, 100, 140, 0.10);
 }
 
-.card h3 {
+.card h2 {
     margin-top: 0;
 }
 
-.value {
-    font-size: 30px;
-    font-weight: bold;
-    margin-top: 10px;
-}
-
-.unit {
-    font-size: 14px;
-    color: #666;
-}
-
-.sensor-section {
-    margin-top: 25px;
-}
-
-.sensor-section h2 {
-    background: #1976d2;
-    color: white;
-    padding: 12px;
+input {
+    width: 100%;
+    padding: 13px;
+    margin: 6px 0 12px;
+    border: 1px solid #b8d5e8;
     border-radius: 10px;
-}
-
-pre {
-    background: #111827;
-    color: #d1fae5;
-    padding: 15px;
-    border-radius: 10px;
-    overflow-x: auto;
+    font-size: 16px;
 }
 
 button {
     border: none;
+    border-radius: 10px;
+    padding: 12px 18px;
+    margin: 5px;
     background: #1976d2;
     color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
+    font-size: 16px;
     cursor: pointer;
-    margin: 5px;
 }
 
 button:hover {
-    background: #125ca5;
+    opacity: 0.88;
+}
+
+button.secondary {
+    background: #607d8b;
+}
+
+button.success {
+    background: #2e8b57;
+}
+
+button.warning {
+    background: #e08b20;
+}
+
+button.danger {
+    background: #d9534f;
+}
+
+.status {
+    display: inline-block;
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    background: #eee;
+}
+
+.status.connected {
+    background: #d8f5df;
+    color: #176b2c;
+}
+
+.status.disconnected {
+    background: #ffe1e1;
+    color: #9b1c1c;
+}
+
+.patient-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+}
+
+.media-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }
 
 video {
     width: 100%;
-    max-width: 500px;
+    max-height: 360px;
+    object-fit: cover;
+    border-radius: 15px;
+    background: #111;
+}
+
+.transcript {
+    min-height: 80px;
+    background: #f3f9fd;
     border-radius: 12px;
-    background: black;
+    padding: 15px;
+    margin-top: 10px;
 }
 
-#micStatus,
-#cameraStatus,
-#speakerStatus {
-    margin: 10px 0;
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin: 15px 0;
 }
 
+.stat {
+    background: #edf8ff;
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+}
+
+.stat strong {
+    display: block;
+    font-size: 24px;
+    margin-top: 5px;
+}
+
+.game {
+    display: none;
+}
+
+.game.active {
+    display: block;
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.progress {
+    height: 12px;
+    background: #e4edf2;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 12px 0 20px;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: #1976d2;
+    transition: width 0.3s;
+}
+
+.memory-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+.memory-card {
+    aspect-ratio: 1;
+    font-size: 40px;
+    background: #d9efff;
+    color: #18324a;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 3px solid transparent;
+    user-select: none;
+}
+
+.memory-card.flipped {
+    background: white;
+    border-color: #1976d2;
+}
+
+.memory-card.matched {
+    background: #d8f5df;
+    border-color: #2e8b57;
+}
+
+.sequence-display {
+    min-height: 100px;
+    background: #eef8ff;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    letter-spacing: 10px;
+    margin: 20px 0;
+}
+
+.number-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    max-width: 500px;
+    margin: auto;
+}
+
+.number-grid button {
+    font-size: 24px;
+    padding: 20px 5px;
+}
+
+.object-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    max-width: 650px;
+    margin: 20px auto;
+}
+
+.object-button {
+    background: #f2f8fc;
+    color: #18324a;
+    border: 2px solid #c8dce9;
+    font-size: 42px;
+    min-height: 110px;
+}
+
+.object-button span {
+    display: block;
+    font-size: 15px;
+    margin-top: 5px;
+}
+
+.target {
+    background: #fff6d8;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    font-size: 28px;
+}
+
+.reaction-area {
+    height: 330px;
+    border-radius: 20px;
+    background: #eef8ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.reaction-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: #1976d2;
+    display: none;
+    cursor: pointer;
+}
+
+.final-score {
+    text-align: center;
+    padding: 30px;
+}
+
+.final-score .big-score {
+    font-size: 64px;
+    font-weight: bold;
+    color: #1976d2;
+}
+
+.event-log {
+    max-height: 220px;
+    overflow-y: auto;
+    background: #f5f9fb;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.event-log div {
+    padding: 5px 0;
+    border-bottom: 1px solid #dde8ee;
+}
+
+.disclaimer {
+    font-size: 13px;
+    color: #667;
+    text-align: center;
+    margin-top: 30px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+@media (max-width: 700px) {
+    .media-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .memory-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 7px;
+    }
+
+    .memory-card {
+        font-size: 28px;
+    }
+
+    .object-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .reaction-area {
+        height: 260px;
+    }
+}
 </style>
 </head>
 
@@ -136,618 +372,810 @@ video {
 <header>
     <h1>🧠 CognitiveCare</h1>
     <p>AI-Based Cognitive Gaming and Memory Assistance Platform</p>
+    <div style="margin-top:10px;">
+        Firebase:
+        <span id="firebaseStatus" class="status disconnected">
+            Connecting...
+        </span>
+    </div>
 </header>
 
 <div class="container">
 
-    <!-- Firebase status -->
+<!-- PATIENT INFORMATION -->
+<section class="card">
+    <h2>👤 Patient Information</h2>
 
-    <div class="status">
+    <div class="patient-grid">
+        <div>
+            <label>Patient Name</label>
+            <input id="patientName" type="text" placeholder="Enter patient name">
+        </div>
 
-        <h2>📡 Firebase Connection</h2>
+        <div>
+            <label>Age</label>
+            <input id="patientAge" type="number" placeholder="Enter age">
+        </div>
 
-        <p>
-            Status:
-            <span id="firebaseStatus" class="disconnected">
-                Connecting...
-            </span>
-        </p>
-
-        <p>
-            Last update:
-            <span id="lastUpdate">---</span>
-        </p>
-
+        <div>
+            <label>Caregiver Name</label>
+            <input id="caregiverName" type="text" placeholder="Enter caregiver name">
+        </div>
     </div>
 
+    <button onclick="startSession()" class="success">
+        ▶ Start Cognitive Session
+    </button>
 
-    <!-- SENSOR DASHBOARD -->
+    <button onclick="savePatientInfo()" class="secondary">
+        💾 Save Patient
+    </button>
 
-    <div class="sensor-section">
+    <div id="sessionStatus" style="margin-top:10px;"></div>
+</section>
 
-        <h2>📊 Real-Time Sensor Data</h2>
 
-        <div class="grid">
+<!-- CAMERA + MICROPHONE + SPEAKER -->
+<section class="card">
+    <h2>📱 Mobile Communication</h2>
 
-            <!-- FORCE -->
+    <div class="media-grid">
 
-            <div class="card">
+        <div>
+            <h3>📷 Camera</h3>
 
-                <h3>💪 Force Sensor</h3>
+            <video id="cameraVideo" autoplay playsinline muted></video>
 
-                <div class="value" id="force">
-                    --
-                </div>
+            <button onclick="startCamera()">
+                Start Camera
+            </button>
 
-                <div class="unit">
-                    Analog Value
-                </div>
+            <button onclick="stopCamera()" class="secondary">
+                Stop Camera
+            </button>
+        </div>
 
+        <div>
+            <h3>🎤 Microphone & Voice</h3>
+
+            <button onclick="startMicrophone()">
+                🎤 Start Microphone
+            </button>
+
+            <button onclick="stopMicrophone()" class="secondary">
+                Stop Microphone
+            </button>
+
+            <button onclick="speakWelcome()" class="success">
+                🔊 Test Speaker
+            </button>
+
+            <div id="micStatus" class="status">
+                Microphone stopped
             </div>
 
-
-            <!-- HEART RATE -->
-
-            <div class="card">
-
-                <h3>❤️ Heart Rate</h3>
-
-                <div class="value" id="heartRate">
-                    --
-                </div>
-
-                <div class="unit">
-                    BPM
-                </div>
-
+            <div class="transcript" id="transcript">
+                Voice transcript will appear here...
             </div>
-
-
-            <!-- SPO2 -->
-
-            <div class="card">
-
-                <h3>🫁 SpO₂</h3>
-
-                <div class="value" id="spo2">
-                    --
-                </div>
-
-                <div class="unit">
-                    %
-                </div>
-
-            </div>
-
-
-            <!-- ACCELERATION X -->
-
-            <div class="card">
-
-                <h3>📈 Acceleration X</h3>
-
-                <div class="value" id="accelX">
-                    --
-                </div>
-
-                <div class="unit">
-                    m/s²
-                </div>
-
-            </div>
-
-
-            <!-- ACCELERATION Y -->
-
-            <div class="card">
-
-                <h3>📈 Acceleration Y</h3>
-
-                <div class="value" id="accelY">
-                    --
-                </div>
-
-                <div class="unit">
-                    m/s²
-                </div>
-
-            </div>
-
-
-            <!-- ACCELERATION Z -->
-
-            <div class="card">
-
-                <h3>📈 Acceleration Z</h3>
-
-                <div class="value" id="accelZ">
-                    --
-                </div>
-
-                <div class="unit">
-                    m/s²
-                </div>
-
-            </div>
-
-
-            <!-- GYRO X -->
-
-            <div class="card">
-
-                <h3>🔄 Gyroscope X</h3>
-
-                <div class="value" id="gyroX">
-                    --
-                </div>
-
-                <div class="unit">
-                    °/s
-                </div>
-
-            </div>
-
-
-            <!-- GYRO Y -->
-
-            <div class="card">
-
-                <h3>🔄 Gyroscope Y</h3>
-
-                <div class="value" id="gyroY">
-                    --
-                </div>
-
-                <div class="unit">
-                    °/s
-                </div>
-
-            </div>
-
-
-            <!-- GYRO Z -->
-
-            <div class="card">
-
-                <h3>🔄 Gyroscope Z</h3>
-
-                <div class="value" id="gyroZ">
-                    --
-                </div>
-
-                <div class="unit">
-                    °/s
-                </div>
-
-            </div>
-
         </div>
 
     </div>
+</section>
 
 
-    <!-- PHONE CAMERA -->
+<!-- OVERALL SCORE -->
+<section class="card">
+    <h2>📊 Session Progress</h2>
 
-    <div class="sensor-section">
-
-        <h2>📷 Mobile Camera</h2>
-
-        <button onclick="startCamera()">
-            Start Camera
-        </button>
-
-        <button onclick="stopCamera()">
-            Stop Camera
-        </button>
-
-        <p id="cameraStatus">Camera stopped</p>
-
-        <video id="camera" autoplay playsinline></video>
-
-    </div>
-
-
-    <!-- MICROPHONE -->
-
-    <div class="sensor-section">
-
-        <h2>🎤 Microphone</h2>
-
-        <button onclick="startMicrophone()">
-            Enable Microphone
-        </button>
-
-        <p id="micStatus">
-            Microphone not enabled
-        </p>
-
-    </div>
-
-
-    <!-- SPEAKER -->
-
-    <div class="sensor-section">
-
-        <h2>🔊 Voice Assistance</h2>
-
-        <button onclick="speakMessage()">
-            Test Voice
-        </button>
-
-        <p id="speakerStatus">
-            Ready
-        </p>
-
-    </div>
-
-
-    <!-- RAW FIREBASE DATA -->
-
-    <div class="sensor-section">
-
-        <h2>🔥 Raw Firebase Data</h2>
-
-        <pre id="rawData">Waiting for Firebase...</pre>
-
-    </div>
-
-
-    <!-- COGNITIVE SESSION -->
-
-    <div class="sensor-section">
-
-        <h2>🧠 Cognitive Session</h2>
-
-        <div class="card">
-
-            <p>
-                Memory Match:
-                <strong id="memoryMatch">Not Completed</strong>
-            </p>
-
-            <p>
-                Easy Sequence:
-                <strong id="sequence">Not Completed</strong>
-            </p>
-
-            <p>
-                Find Object:
-                <strong id="findObject">Not Completed</strong>
-            </p>
-
-            <p>
-                Reaction Challenge:
-                <strong id="reaction">Not Completed</strong>
-            </p>
-
-            <h3>
-                Total Score:
-                <span id="totalScore">0</span>
-            </h3>
-
+    <div class="stats">
+        <div class="stat">
+            Total Score
+            <strong id="totalScore">0</strong>
         </div>
 
+        <div class="stat">
+            Games
+            <strong id="gamesCompleted">0/4</strong>
+        </div>
+
+        <div class="stat">
+            Mistakes
+            <strong id="totalMistakes">0</strong>
+        </div>
+
+        <div class="stat">
+            Attempts
+            <strong id="totalAttempts">0</strong>
+        </div>
     </div>
+</section>
+
+
+<!-- GAME NAVIGATION -->
+<section class="card">
+    <h2>🧠 Cognitive Activities</h2>
+
+    <button onclick="showGame(1)">
+        Level 1 — Memory Match
+    </button>
+
+    <button onclick="showGame(2)">
+        Level 2 — Easy Sequence
+    </button>
+
+    <button onclick="showGame(3)">
+        Level 3 — Find the Object
+    </button>
+
+    <button onclick="showGame(4)">
+        Level 4 — Reaction Challenge
+    </button>
+</section>
+
+
+<!-- GAME 1 -->
+<section id="game1" class="card game active">
+
+    <div class="game-header">
+        <h2>🧩 Level 1 — Memory Match</h2>
+
+        <span id="memoryStatus" class="status">
+            Find 4 matching pairs
+        </span>
+    </div>
+
+    <div class="progress">
+        <div id="memoryProgress" class="progress-bar"></div>
+    </div>
+
+    <div class="stats">
+        <div class="stat">
+            Pairs
+            <strong id="memoryPairs">0/4</strong>
+        </div>
+
+        <div class="stat">
+            Attempts
+            <strong id="memoryAttempts">0</strong>
+        </div>
+
+        <div class="stat">
+            Mistakes
+            <strong id="memoryMistakes">0</strong>
+        </div>
+
+        <div class="stat">
+            Time
+            <strong id="memoryTime">0</strong>
+        </div>
+    </div>
+
+    <div id="memoryGrid" class="memory-grid"></div>
+
+    <button onclick="restartMemory()">
+        🔄 Restart
+    </button>
+
+    <button onclick="showGame(2)" class="success">
+        Next Level →
+    </button>
+
+</section>
+
+
+<!-- GAME 2 -->
+<section id="game2" class="card game">
+
+    <h2>🔢 Level 2 — Easy Sequence</h2>
+
+    <p>
+        Remember the numbers shown on the screen and enter them in the same order.
+    </p>
+
+    <div class="stats">
+        <div class="stat">
+            Round
+            <strong id="sequenceRound">0/2</strong>
+        </div>
+
+        <div class="stat">
+            Correct
+            <strong id="sequenceCorrect">0</strong>
+        </div>
+
+        <div class="stat">
+            Mistakes
+            <strong id="sequenceMistakes">0</strong>
+        </div>
+
+        <div class="stat">
+            Score
+            <strong id="sequenceScore">0</strong>
+        </div>
+    </div>
+
+    <div id="sequenceDisplay" class="sequence-display">
+        Press START
+    </div>
+
+    <div id="numberGrid" class="number-grid">
+        <button onclick="selectSequenceNumber(1)">1</button>
+        <button onclick="selectSequenceNumber(2)">2</button>
+        <button onclick="selectSequenceNumber(3)">3</button>
+        <button onclick="selectSequenceNumber(4)">4</button>
+        <button onclick="selectSequenceNumber(5)">5</button>
+    </div>
+
+    <br>
+
+    <button onclick="startSequence()">
+        ▶ START
+    </button>
+
+    <button onclick="clearSequence()" class="secondary">
+        CLEAR
+    </button>
+
+    <button onclick="showGame(3)" class="success">
+        Next Level →
+    </button>
+
+</section>
+
+
+<!-- GAME 3 -->
+<section id="game3" class="card game">
+
+    <h2>☕ Level 3 — Find the Object</h2>
+
+    <div class="target">
+        Find:
+        <strong id="targetObject">☕ Cup</strong>
+    </div>
+
+    <div class="stats">
+        <div class="stat">
+            Attempts
+            <strong id="objectAttempts">0</strong>
+        </div>
+
+        <div class="stat">
+            Mistakes
+            <strong id="objectMistakes">0</strong>
+        </div>
+
+        <div class="stat">
+            Score
+            <strong id="objectScore">0</strong>
+        </div>
+    </div>
+
+    <div id="objectGrid" class="object-grid"></div>
+
+    <button onclick="restartObjectGame()">
+        🔄 Restart
+    </button>
+
+    <button onclick="showGame(4)" class="success">
+        Next Level →
+    </button>
+
+</section>
+
+
+<!-- GAME 4 -->
+<section id="game4" class="card game">
+
+    <h2>⚡ Level 4 — Reaction Challenge</h2>
+
+    <p>
+        Wait for the blue circle to appear, then tap it as quickly as possible.
+    </p>
+
+    <div class="stats">
+        <div class="stat">
+            Attempts
+            <strong id="reactionAttempts">0</strong>
+        </div>
+
+        <div class="stat">
+            Best Time
+            <strong id="bestReaction">--</strong>
+        </div>
+
+        <div class="stat">
+            Score
+            <strong id="reactionScore">0</strong>
+        </div>
+    </div>
+
+    <div class="reaction-area" id="reactionArea">
+        <div id="reactionCircle"
+             class="reaction-circle"
+             onclick="reactionClicked()">
+        </div>
+    </div>
+
+    <div id="reactionStatus" class="status">
+        Press START
+    </div>
+
+    <br>
+
+    <button onclick="startReaction()">
+        ▶ START
+    </button>
+
+    <button onclick="finishSession()" class="success">
+        🏁 Finish Session
+    </button>
+
+</section>
+
+
+<!-- FINAL SCREEN -->
+<section id="finalScreen" class="card final-score hidden">
+
+    <h2>🎉 Congratulations!</h2>
+
+    <p>You completed all four cognitive activities.</p>
+
+    <div class="big-score" id="finalScore">
+        0
+    </div>
+
+    <p>Total Score</p>
+
+    <div class="stats">
+        <div class="stat">
+            Games
+            <strong id="finalGames">4/4</strong>
+        </div>
+
+        <div class="stat">
+            Mistakes
+            <strong id="finalMistakes">0</strong>
+        </div>
+
+        <div class="stat">
+            Attempts
+            <strong id="finalAttempts">0</strong>
+        </div>
+    </div>
+
+    <button onclick="newSession()">
+        🔄 Play Again
+    </button>
+
+</section>
+
+
+<!-- LIVE EVENT LOG -->
+<section class="card">
+    <h2>🔄 Real-Time Activity Log</h2>
+
+    <div id="eventLog" class="event-log">
+        <div>Waiting for session...</div>
+    </div>
+</section>
+
+
+<p class="disclaimer">
+    CognitiveCare is a cognitive-training project prototype and not a medical diagnostic system.
+</p>
 
 </div>
 
 
-<!-- FIREBASE -->
+<script>
 
-<script type="module">
-
-import {
-    initializeApp
-} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-
-import {
-    getDatabase,
-    ref,
-    onValue
-} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
-
-
-/* ==========================================
-   YOUR FIREBASE CONFIGURATION
-   ========================================== */
+/* =========================================================
+   FIREBASE CONFIGURATION
+   ========================================================= */
 
 const firebaseConfig = {
-
-    apiKey:
-    "AIzaSyBS0nV2kUo68cZIN3wrDYahscgkVnS3Tr4",
-
-    authDomain:
-    "cognitivecare24bm068.firebaseapp.com",
-
-    databaseURL:
-    "https://cognitivecare24bm068-default-rtdb.asia-southeast1.firebasedatabase.app",
-
-    projectId:
-    "cognitivecare24bm068",
-
-    storageBucket:
-    "cognitivecare24bm068.firebasestorage.app",
-
-    messagingSenderId:
-    "252318365732",
-
-    appId:
-    "1:252318365732:web:41cff9ca72823b410e40b1",
-
-    measurementId:
-    "G-4V38VHVMB0"
+    apiKey: "AIzaSyBS0nV2kUo68cZIN3wrDYahscgkVnS3Tr4",
+    authDomain: "cognitivecare24bm068.firebaseapp.com",
+    databaseURL: "https://cognitivecare24bm068-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "cognitivecare24bm068",
+    storageBucket: "cognitivecare24bm068.firebasestorage.app",
+    messagingSenderId: "252318365732",
+    appId: "1:252318365732:web:41cff9ca72823b410e40b1",
+    measurementId: "G-4V3VHVMB0"
 };
 
+firebase.initializeApp(firebaseConfig);
 
-/* ==========================================
-   INITIALIZE FIREBASE
-   ========================================== */
+const db = firebase.database();
 
-const app = initializeApp(firebaseConfig);
 
-const database = getDatabase(app);
+/* =========================================================
+   GLOBAL VARIABLES
+   ========================================================= */
 
+let patientId = "";
+let sessionId = "";
+let sessionStarted = false;
 
-/* ==========================================
-   ESP32 DATABASE LOCATION
-   ========================================== */
+let totalScore = 0;
+let totalMistakes = 0;
+let totalAttempts = 0;
+let gamesCompleted = 0;
 
-const sensorRef = ref(
-    database,
-    "devices/ESP32_01"
-);
+let cameraStream = null;
+let microphoneStream = null;
+let recognition = null;
 
 
-/* ==========================================
-   REAL-TIME LISTENER
-   ========================================== */
+/* =========================================================
+   FIREBASE CONNECTION STATUS
+   ========================================================= */
 
-onValue(
+db.ref(".info/connected").on("value", function(snapshot) {
 
-    sensorRef,
+    const status = document.getElementById("firebaseStatus");
 
-    (snapshot) => {
+    if (snapshot.val() === true) {
 
-        const data = snapshot.val();
+        status.textContent = "Connected";
+        status.className = "status connected";
 
-        console.log(
-            "Firebase data:",
-            data
-        );
+        addLog("Firebase connected successfully.");
 
+    } else {
 
-        if (!data) {
+        status.textContent = "Offline";
+        status.className = "status disconnected";
 
-            document.getElementById(
-                "firebaseStatus"
-            ).textContent =
-            "Connected - No sensor data";
-
-            return;
-        }
-
-
-        /* Firebase connected */
-
-        document.getElementById(
-            "firebaseStatus"
-        ).textContent =
-        "🟢 Connected";
-
-
-        document.getElementById(
-            "firebaseStatus"
-        ).className =
-        "connected";
-
-
-        /* =================================
-           FORCE SENSOR
-           ================================= */
-
-        if (data.force !== undefined) {
-
-            document.getElementById(
-                "force"
-            ).textContent =
-            data.force;
-
-        }
-
-
-        /* =================================
-           MAX30100 HEART RATE
-           ================================= */
-
-        if (data.heartRate !== undefined) {
-
-            document.getElementById(
-                "heartRate"
-            ).textContent =
-            data.heartRate;
-
-        }
-
-
-        /* =================================
-           MAX30100 SPO2
-           ================================= */
-
-        if (data.spo2 !== undefined) {
-
-            document.getElementById(
-                "spo2"
-            ).textContent =
-            data.spo2;
-
-        }
-
-
-        /* =================================
-           MPU6050 ACCELEROMETER
-           ================================= */
-
-        if (data.acceleration) {
-
-            document.getElementById(
-                "accelX"
-            ).textContent =
-            Number(
-                data.acceleration.x
-            ).toFixed(2);
-
-
-            document.getElementById(
-                "accelY"
-            ).textContent =
-            Number(
-                data.acceleration.y
-            ).toFixed(2);
-
-
-            document.getElementById(
-                "accelZ"
-            ).textContent =
-            Number(
-                data.acceleration.z
-            ).toFixed(2);
-
-        }
-
-
-        /* =================================
-           MPU6050 GYROSCOPE
-           ================================= */
-
-        if (data.gyroscope) {
-
-            document.getElementById(
-                "gyroX"
-            ).textContent =
-            Number(
-                data.gyroscope.x
-            ).toFixed(2);
-
-
-            document.getElementById(
-                "gyroY"
-            ).textContent =
-            Number(
-                data.gyroscope.y
-            ).toFixed(2);
-
-
-            document.getElementById(
-                "gyroZ"
-            ).textContent =
-            Number(
-                data.gyroscope.z
-            ).toFixed(2);
-
-        }
-
-
-        /* =================================
-           LAST UPDATE
-           ================================= */
-
-        if (data.timestamp) {
-
-            const date =
-            new Date(data.timestamp);
-
-            document.getElementById(
-                "lastUpdate"
-            ).textContent =
-            date.toLocaleString();
-
-        }
-
-
-        /* =================================
-           RAW DATA
-           ================================= */
-
-        document.getElementById(
-            "rawData"
-        ).textContent =
-        JSON.stringify(
-            data,
-            null,
-            2
-        );
-
-    },
-
-    (error) => {
-
-        console.error(
-            "Firebase error:",
-            error
-        );
-
-        document.getElementById(
-            "firebaseStatus"
-        ).textContent =
-        "🔴 Firebase Error";
-
-        document.getElementById(
-            "firebaseStatus"
-        ).className =
-        "disconnected";
+        addLog("Firebase connection unavailable.");
 
     }
 
-);
-
-</script>
+});
 
 
-<!-- PHONE CAMERA / MICROPHONE / SPEAKER -->
+/* =========================================================
+   UTILITY FUNCTIONS
+   ========================================================= */
 
-<script>
+function generatePatientId(name) {
 
-/* ==========================================
+    if (!name) {
+        return "patient_demo";
+    }
+
+    return name
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "_")
+        .substring(0, 40);
+}
+
+
+function addLog(message) {
+
+    const log = document.getElementById("eventLog");
+
+    const item = document.createElement("div");
+
+    item.textContent =
+        new Date().toLocaleTimeString() + " — " + message;
+
+    log.prepend(item);
+}
+
+
+function updateOverallStats() {
+
+    document.getElementById("totalScore").textContent = totalScore;
+
+    document.getElementById("gamesCompleted").textContent =
+        gamesCompleted + "/4";
+
+    document.getElementById("totalMistakes").textContent =
+        totalMistakes;
+
+    document.getElementById("totalAttempts").textContent =
+        totalAttempts;
+}
+
+
+function saveSessionData(extraData = {}) {
+
+    if (!patientId || !sessionId) {
+        return;
+    }
+
+    const data = {
+
+        patientName:
+            document.getElementById("patientName").value || "Unknown",
+
+        patientAge:
+            document.getElementById("patientAge").value || "",
+
+        caregiverName:
+            document.getElementById("caregiverName").value || "",
+
+        totalScore: totalScore,
+
+        totalMistakes: totalMistakes,
+
+        totalAttempts: totalAttempts,
+
+        gamesCompleted: gamesCompleted,
+
+        updatedAt: firebase.database.ServerValue.TIMESTAMP,
+
+        ...extraData
+
+    };
+
+    db.ref(
+        "patients/" +
+        patientId +
+        "/sessions/" +
+        sessionId
+    ).update(data)
+    .catch(error => {
+
+        console.error("Firebase save error:", error);
+
+        addLog("Firebase save error.");
+
+    });
+}
+
+
+function saveEvent(type, data = {}) {
+
+    if (!patientId || !sessionId) {
+        return;
+    }
+
+    const eventRef = db.ref(
+        "patients/" +
+        patientId +
+        "/sessions/" +
+        sessionId +
+        "/events"
+    ).push();
+
+    eventRef.set({
+
+        type: type,
+
+        timestamp:
+            firebase.database.ServerValue.TIMESTAMP,
+
+        ...data
+
+    });
+
+    saveSessionData();
+
+}
+
+
+/* =========================================================
+   PATIENT / SESSION
+   ========================================================= */
+
+function savePatientInfo() {
+
+    const name =
+        document.getElementById("patientName").value.trim();
+
+    const age =
+        document.getElementById("patientAge").value;
+
+    const caregiver =
+        document.getElementById("caregiverName").value.trim();
+
+    if (!name) {
+
+        alert("Please enter the patient name.");
+
+        return;
+    }
+
+    patientId = generatePatientId(name);
+
+    db.ref("patients/" + patientId).update({
+
+        name: name,
+
+        age: age,
+
+        caregiver: caregiver,
+
+        updatedAt:
+            firebase.database.ServerValue.TIMESTAMP
+
+    });
+
+    addLog("Patient information saved.");
+
+    document.getElementById("sessionStatus").textContent =
+        "Patient information saved successfully.";
+
+}
+
+
+function startSession() {
+
+    const name =
+        document.getElementById("patientName").value.trim();
+
+    if (!name) {
+
+        alert("Please enter the patient name first.");
+
+        return;
+    }
+
+    patientId = generatePatientId(name);
+
+    const sessionRef =
+        db.ref(
+            "patients/" +
+            patientId +
+            "/sessions"
+        ).push();
+
+    sessionId = sessionRef.key;
+
+    sessionStarted = true;
+
+    totalScore = 0;
+    totalMistakes = 0;
+    totalAttempts = 0;
+    gamesCompleted = 0;
+
+    updateOverallStats();
+
+    sessionRef.set({
+
+        patientName: name,
+
+        age:
+            document.getElementById("patientAge").value || "",
+
+        caregiver:
+            document.getElementById("caregiverName").value || "",
+
+        startedAt:
+            firebase.database.ServerValue.TIMESTAMP,
+
+        status: "active",
+
+        totalScore: 0,
+
+        totalMistakes: 0,
+
+        totalAttempts: 0,
+
+        gamesCompleted: 0
+
+    });
+
+    document.getElementById("sessionStatus").textContent =
+        "🟢 Session started";
+
+    addLog("Cognitive session started.");
+
+    speak(
+        "Welcome to CognitiveCare. Let's begin your cognitive activities."
+    );
+
+    restartMemory();
+
+    saveEvent("session_started");
+
+}
+
+
+function finishSession() {
+
+    if (!sessionStarted) {
+
+        alert("Please start a session first.");
+
+        return;
+    }
+
+    sessionStarted = false;
+
+    saveSessionData({
+
+        status: "completed",
+
+        completedAt:
+            firebase.database.ServerValue.TIMESTAMP
+
+    });
+
+    saveEvent("session_completed", {
+
+        finalScore: totalScore,
+
+        finalMistakes: totalMistakes,
+
+        finalAttempts: totalAttempts
+
+    });
+
+    document.getElementById("finalScreen")
+        .classList.remove("hidden");
+
+    document.getElementById("finalScore")
+        .textContent = totalScore;
+
+    document.getElementById("finalGames")
+        .textContent = gamesCompleted + "/4";
+
+    document.getElementById("finalMistakes")
+        .textContent = totalMistakes;
+
+    document.getElementById("finalAttempts")
+        .textContent = totalAttempts;
+
+    speak(
+        "Congratulations. You completed the cognitive session."
+    );
+
+    addLog("Session completed.");
+
+}
+
+
+function newSession() {
+
+    document.getElementById("finalScreen")
+        .classList.add("hidden");
+
+    startSession();
+
+}
+
+
+/* =========================================================
    CAMERA
-   ========================================== */
-
-let cameraStream = null;
-
+   ========================================================= */
 
 async function startCamera() {
 
     try {
 
         cameraStream =
-        await navigator.mediaDevices
-        .getUserMedia({
+            await navigator.mediaDevices.getUserMedia({
 
-            video: true
+                video: {
 
-        });
+                    facingMode: "user"
 
+                },
 
-        document.getElementById(
-            "camera"
-        ).srcObject =
-        cameraStream;
+                audio: false
 
+            });
 
-        document.getElementById(
-            "cameraStatus"
-        ).textContent =
-        "🟢 Camera enabled";
+        document.getElementById("cameraVideo")
+            .srcObject = cameraStream;
 
-    }
+        addLog("Camera started.");
 
-    catch(error) {
+        saveEvent("camera_started");
+
+    } catch (error) {
 
         console.error(error);
 
-        document.getElementById(
-            "cameraStatus"
-        ).textContent =
-        "Camera permission denied";
+        alert(
+            "Camera permission was denied or unavailable."
+        );
+
+        addLog("Camera could not be started.");
 
     }
 
@@ -758,99 +1186,1169 @@ function stopCamera() {
 
     if (cameraStream) {
 
-        cameraStream
-        .getTracks()
-        .forEach(
-            track => track.stop()
-        );
+        cameraStream.getTracks().forEach(track => {
+            track.stop();
+        });
 
         cameraStream = null;
 
+        document.getElementById("cameraVideo")
+            .srcObject = null;
+
+        addLog("Camera stopped.");
+
+        saveEvent("camera_stopped");
+
     }
-
-
-    document.getElementById(
-        "camera"
-    ).srcObject = null;
-
-
-    document.getElementById(
-        "cameraStatus"
-    ).textContent =
-    "Camera stopped";
 
 }
 
 
-/* ==========================================
+/* =========================================================
    MICROPHONE
-   ========================================== */
+   ========================================================= */
 
 async function startMicrophone() {
 
     try {
 
-        const stream =
-        await navigator.mediaDevices
-        .getUserMedia({
+        microphoneStream =
+            await navigator.mediaDevices.getUserMedia({
 
-            audio: true
+                audio: true
+
+            });
+
+        document.getElementById("micStatus")
+            .textContent = "🎤 Microphone active";
+
+        addLog("Microphone started.");
+
+        saveEvent("microphone_started");
+
+        startVoiceRecognition();
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Microphone permission was denied or unavailable."
+        );
+
+        addLog("Microphone could not be started.");
+
+    }
+
+}
+
+
+function stopMicrophone() {
+
+    if (microphoneStream) {
+
+        microphoneStream.getTracks().forEach(track => {
+            track.stop();
+        });
+
+        microphoneStream = null;
+    }
+
+    if (recognition) {
+
+        try {
+            recognition.stop();
+        } catch (e) {}
+
+    }
+
+    document.getElementById("micStatus")
+        .textContent = "Microphone stopped";
+
+    addLog("Microphone stopped.");
+
+    saveEvent("microphone_stopped");
+
+}
+
+
+function startVoiceRecognition() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+
+        document.getElementById("transcript")
+            .textContent =
+            "Voice recognition is not supported in this browser.";
+
+        return;
+    }
+
+    recognition = new SpeechRecognition();
+
+    recognition.continuous = true;
+
+    recognition.interimResults = true;
+
+    recognition.lang = "en-IN";
+
+    recognition.onresult = function(event) {
+
+        let text = "";
+
+        for (
+            let i = event.resultIndex;
+            i < event.results.length;
+            i++
+        ) {
+
+            text +=
+                event.results[i][0].transcript;
+
+        }
+
+        document.getElementById("transcript")
+            .textContent = text;
+
+        saveEvent("voice_input", {
+
+            transcript: text
 
         });
 
+    };
 
-        document.getElementById(
-            "micStatus"
-        ).textContent =
-        "🟢 Microphone enabled";
+    recognition.onerror = function(event) {
 
         console.log(
-            "Microphone enabled",
-            stream
+            "Speech recognition:",
+            event.error
+        );
+
+    };
+
+    recognition.onend = function() {
+
+        if (microphoneStream) {
+
+            try {
+                recognition.start();
+            } catch (e) {}
+
+        }
+
+    };
+
+    try {
+
+        recognition.start();
+
+    } catch (e) {
+
+        console.log(e);
+
+    }
+
+}
+
+
+function speak(text) {
+
+    if (!("speechSynthesis" in window)) {
+
+        return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const utterance =
+        new SpeechSynthesisUtterance(text);
+
+    utterance.lang = "en-IN";
+
+    utterance.rate = 0.9;
+
+    utterance.pitch = 1;
+
+    window.speechSynthesis.speak(utterance);
+
+}
+
+
+function speakWelcome() {
+
+    speak(
+        "Welcome to CognitiveCare. Please follow the instructions on the screen."
+    );
+
+    saveEvent("speaker_test");
+
+}
+
+
+/* =========================================================
+   GAME NAVIGATION
+   ========================================================= */
+
+function showGame(number) {
+
+    document.querySelectorAll(".game")
+        .forEach(game => {
+
+            game.classList.remove("active");
+
+        });
+
+    const selected =
+        document.getElementById("game" + number);
+
+    if (selected) {
+
+        selected.classList.add("active");
+
+    }
+
+    if (number === 1) {
+
+        restartMemory();
+
+    }
+
+    if (number === 3) {
+
+        restartObjectGame();
+
+    }
+
+}
+
+
+/* =========================================================
+   GAME 1 — MEMORY MATCH
+   ========================================================= */
+
+const memorySymbols = [
+    "🍌",
+    "🍇",
+    "🍊",
+    "🍎"
+];
+
+let memoryCards = [];
+
+let firstMemoryCard = null;
+let secondMemoryCard = null;
+
+let memoryLock = false;
+
+let memoryPairs = 0;
+let memoryAttempts = 0;
+let memoryMistakes = 0;
+
+let memoryStartTime = null;
+let memoryTimer = null;
+
+
+function restartMemory() {
+
+    memoryCards = [];
+
+    firstMemoryCard = null;
+    secondMemoryCard = null;
+
+    memoryLock = false;
+
+    memoryPairs = 0;
+    memoryAttempts = 0;
+    memoryMistakes = 0;
+
+    memoryStartTime = Date.now();
+
+    clearInterval(memoryTimer);
+
+    memoryTimer = setInterval(function() {
+
+        if (memoryStartTime) {
+
+            const seconds =
+                Math.floor(
+                    (Date.now() - memoryStartTime) / 1000
+                );
+
+            document.getElementById("memoryTime")
+                .textContent = seconds;
+
+        }
+
+    }, 1000);
+
+    const values =
+        [...memorySymbols, ...memorySymbols]
+            .sort(() => Math.random() - 0.5);
+
+    const grid =
+        document.getElementById("memoryGrid");
+
+    grid.innerHTML = "";
+
+    values.forEach((symbol, index) => {
+
+        const card =
+            document.createElement("div");
+
+        card.className = "memory-card";
+
+        card.dataset.symbol = symbol;
+
+        card.dataset.index = index;
+
+        card.textContent = "?";
+
+        card.onclick = function() {
+
+            flipMemoryCard(card);
+
+        };
+
+        grid.appendChild(card);
+
+    });
+
+    updateMemoryStats();
+
+}
+
+
+function flipMemoryCard(card) {
+
+    if (memoryLock) return;
+
+    if (card.classList.contains("flipped")) return;
+
+    if (card.classList.contains("matched")) return;
+
+    card.classList.add("flipped");
+
+    card.textContent = card.dataset.symbol;
+
+    if (!firstMemoryCard) {
+
+        firstMemoryCard = card;
+
+        return;
+    }
+
+    secondMemoryCard = card;
+
+    memoryAttempts++;
+
+    totalAttempts++;
+
+    if (
+        firstMemoryCard.dataset.symbol ===
+        secondMemoryCard.dataset.symbol
+    ) {
+
+        firstMemoryCard.classList.add("matched");
+
+        secondMemoryCard.classList.add("matched");
+
+        memoryPairs++;
+
+        totalScore += 10;
+
+        addLog(
+            "Memory Match: correct pair found."
+        );
+
+        saveEvent("memory_match_correct", {
+
+            pair: memoryPairs,
+
+            attempts: memoryAttempts,
+
+            score: 10
+
+        });
+
+        firstMemoryCard = null;
+
+        secondMemoryCard = null;
+
+        if (memoryPairs === 4) {
+
+            completeMemoryGame();
+
+        }
+
+    } else {
+
+        memoryMistakes++;
+
+        totalMistakes++;
+
+        memoryLock = true;
+
+        addLog(
+            "Memory Match: incorrect pair."
+        );
+
+        saveEvent("memory_match_mistake", {
+
+            mistakes: memoryMistakes
+
+        });
+
+        setTimeout(function() {
+
+            firstMemoryCard.classList.remove("flipped");
+
+            secondMemoryCard.classList.remove("flipped");
+
+            firstMemoryCard.textContent = "?";
+
+            secondMemoryCard.textContent = "?";
+
+            firstMemoryCard = null;
+
+            secondMemoryCard = null;
+
+            memoryLock = false;
+
+            updateMemoryStats();
+
+        }, 800);
+
+    }
+
+    updateMemoryStats();
+
+    updateOverallStats();
+
+    saveSessionData();
+
+}
+
+
+function updateMemoryStats() {
+
+    document.getElementById("memoryPairs")
+        .textContent =
+        memoryPairs + "/4";
+
+    document.getElementById("memoryAttempts")
+        .textContent =
+        memoryAttempts;
+
+    document.getElementById("memoryMistakes")
+        .textContent =
+        memoryMistakes;
+
+    document.getElementById("memoryProgress")
+        .style.width =
+        ((memoryPairs / 4) * 100) + "%";
+
+}
+
+
+function completeMemoryGame() {
+
+    clearInterval(memoryTimer);
+
+    if (gamesCompleted < 1) {
+
+        gamesCompleted++;
+
+    }
+
+    document.getElementById("memoryStatus")
+        .textContent =
+        "Completed ✓";
+
+    addLog("Memory Match completed.");
+
+    speak(
+        "Excellent. Memory Match completed."
+    );
+
+    saveEvent("game_completed", {
+
+        game: "Memory Match",
+
+        score: memoryPairs * 10,
+
+        attempts: memoryAttempts,
+
+        mistakes: memoryMistakes,
+
+        time:
+            document.getElementById("memoryTime").textContent
+
+    });
+
+    updateOverallStats();
+
+    saveSessionData();
+
+}
+
+
+/* =========================================================
+   GAME 2 — EASY SEQUENCE
+   ========================================================= */
+
+let sequence = [];
+
+let userSequence = [];
+
+let sequenceRound = 0;
+
+let sequenceCorrect = 0;
+
+let sequenceMistakes = 0;
+
+let sequenceScore = 0;
+
+let sequenceActive = false;
+
+
+function startSequence() {
+
+    if (sequenceRound >= 2) {
+
+        sequenceRound = 0;
+        sequenceCorrect = 0;
+        sequenceMistakes = 0;
+        sequenceScore = 0;
+
+    }
+
+    sequenceRound++;
+
+    userSequence = [];
+
+    sequence = [];
+
+    for (let i = 0; i < 3; i++) {
+
+        sequence.push(
+            Math.floor(Math.random() * 5) + 1
         );
 
     }
 
-    catch(error) {
+    sequenceActive = false;
 
-        console.error(error);
+    const display =
+        document.getElementById("sequenceDisplay");
 
-        document.getElementById(
-            "micStatus"
-        ).textContent =
-        "Microphone permission denied";
+    display.textContent =
+        sequence.join(" ");
+
+    speak(
+        "Remember the number sequence."
+    );
+
+    saveEvent("sequence_started", {
+
+        round: sequenceRound
+
+    });
+
+    setTimeout(function() {
+
+        display.textContent =
+            "Your turn";
+
+        sequenceActive = true;
+
+    }, 2000);
+
+    updateSequenceStats();
+
+}
+
+
+function selectSequenceNumber(number) {
+
+    if (!sequenceActive) {
+
+        return;
+    }
+
+    userSequence.push(number);
+
+    document.getElementById("sequenceDisplay")
+        .textContent =
+        userSequence.join(" ");
+
+    if (userSequence.length === sequence.length) {
+
+        sequenceActive = false;
+
+        const correct =
+            userSequence.join("") ===
+            sequence.join("");
+
+        totalAttempts++;
+
+        if (correct) {
+
+            sequenceCorrect++;
+
+            sequenceScore += 20;
+
+            totalScore += 20;
+
+            addLog(
+                "Easy Sequence: correct."
+            );
+
+            speak("Correct.");
+
+            saveEvent("sequence_correct", {
+
+                round: sequenceRound,
+
+                score: 20
+
+            });
+
+        } else {
+
+            sequenceMistakes++;
+
+            totalMistakes++;
+
+            addLog(
+                "Easy Sequence: incorrect."
+            );
+
+            speak(
+                "That sequence was not correct."
+            );
+
+            saveEvent("sequence_mistake", {
+
+                round: sequenceRound
+
+            });
+
+        }
+
+        updateSequenceStats();
+
+        updateOverallStats();
+
+        saveSessionData();
+
+        if (sequenceRound === 2) {
+
+            if (gamesCompleted < 2) {
+
+                gamesCompleted++;
+
+            }
+
+            saveEvent("game_completed", {
+
+                game: "Easy Sequence",
+
+                score: sequenceScore,
+
+                mistakes: sequenceMistakes
+
+            });
+
+            addLog(
+                "Easy Sequence completed."
+            );
+
+            updateOverallStats();
+
+            saveSessionData();
+
+        }
 
     }
 
 }
 
 
-/* ==========================================
-   SPEAKER
-   ========================================== */
+function clearSequence() {
 
-function speakMessage() {
+    userSequence = [];
 
-    const message =
-    "Welcome to CognitiveCare. Your sensor system is working.";
-
-    const speech =
-    new SpeechSynthesisUtterance(
-        message
-    );
-
-    speech.rate = 0.9;
-
-    window.speechSynthesis.speak(
-        speech
-    );
-
-    document.getElementById(
-        "speakerStatus"
-    ).textContent =
-    "🔊 Voice played";
+    document.getElementById("sequenceDisplay")
+        .textContent = "Press START";
 
 }
+
+
+function updateSequenceStats() {
+
+    document.getElementById("sequenceRound")
+        .textContent =
+        sequenceRound + "/2";
+
+    document.getElementById("sequenceCorrect")
+        .textContent =
+        sequenceCorrect;
+
+    document.getElementById("sequenceMistakes")
+        .textContent =
+        sequenceMistakes;
+
+    document.getElementById("sequenceScore")
+        .textContent =
+        sequenceScore;
+
+}
+
+
+/* =========================================================
+   GAME 3 — FIND THE OBJECT
+   ========================================================= */
+
+const objectList = [
+
+    {
+        name: "Cup",
+        emoji: "☕"
+    },
+
+    {
+        name: "Phone",
+        emoji: "📱"
+    },
+
+    {
+        name: "Key",
+        emoji: "🔑"
+    },
+
+    {
+        name: "Glasses",
+        emoji: "👓"
+    },
+
+    {
+        name: "Clock",
+        emoji: "⏰"
+    },
+
+    {
+        name: "Book",
+        emoji: "📖"
+    }
+
+];
+
+let targetObject = null;
+
+let objectAttempts = 0;
+
+let objectMistakes = 0;
+
+let objectScore = 0;
+
+let objectCompleted = false;
+
+
+function restartObjectGame() {
+
+    objectAttempts = 0;
+
+    objectMistakes = 0;
+
+    objectScore = 0;
+
+    objectCompleted = false;
+
+    targetObject =
+        objectList[
+            Math.floor(
+                Math.random() * objectList.length
+            )
+        ];
+
+    document.getElementById("targetObject")
+        .textContent =
+        targetObject.emoji +
+        " " +
+        targetObject.name;
+
+    const grid =
+        document.getElementById("objectGrid");
+
+    grid.innerHTML = "";
+
+    const shuffled =
+        [...objectList]
+            .sort(() => Math.random() - 0.5);
+
+    shuffled.forEach(object => {
+
+        const button =
+            document.createElement("button");
+
+        button.className =
+            "object-button";
+
+        button.innerHTML =
+            object.emoji +
+            "<span>" +
+            object.name +
+            "</span>";
+
+        button.onclick = function() {
+
+            selectObject(object);
+
+        };
+
+        grid.appendChild(button);
+
+    });
+
+    updateObjectStats();
+
+}
+
+
+function selectObject(object) {
+
+    if (objectCompleted) {
+
+        return;
+    }
+
+    objectAttempts++;
+
+    totalAttempts++;
+
+    if (object.name === targetObject.name) {
+
+        objectScore += 20;
+
+        totalScore += 20;
+
+        objectCompleted = true;
+
+        if (gamesCompleted < 3) {
+
+            gamesCompleted++;
+
+        }
+
+        speak("Correct. You found the object.");
+
+        addLog(
+            "Find the Object: correct."
+        );
+
+        saveEvent("object_correct", {
+
+            target: targetObject.name,
+
+            score: 20,
+
+            attempts: objectAttempts
+
+        });
+
+        saveEvent("game_completed", {
+
+            game: "Find the Object",
+
+            score: objectScore,
+
+            mistakes: objectMistakes
+
+        });
+
+    } else {
+
+        objectMistakes++;
+
+        totalMistakes++;
+
+        speak("Try again.");
+
+        addLog(
+            "Find the Object: incorrect."
+        );
+
+        saveEvent("object_mistake", {
+
+            selected: object.name,
+
+            target: targetObject.name
+
+        });
+
+    }
+
+    updateObjectStats();
+
+    updateOverallStats();
+
+    saveSessionData();
+
+}
+
+
+function updateObjectStats() {
+
+    document.getElementById("objectAttempts")
+        .textContent =
+        objectAttempts;
+
+    document.getElementById("objectMistakes")
+        .textContent =
+        objectMistakes;
+
+    document.getElementById("objectScore")
+        .textContent =
+        objectScore;
+
+}
+
+
+/* =========================================================
+   GAME 4 — REACTION CHALLENGE
+   ========================================================= */
+
+let reactionTimer = null;
+
+let reactionStart = null;
+
+let reactionAttempts = 0;
+
+let bestReaction = null;
+
+let reactionScore = 0;
+
+let reactionWaiting = false;
+
+let reactionCompleted = false;
+
+
+function startReaction() {
+
+    if (reactionWaiting) {
+
+        return;
+    }
+
+    const circle =
+        document.getElementById("reactionCircle");
+
+    const status =
+        document.getElementById("reactionStatus");
+
+    circle.style.display = "none";
+
+    status.textContent =
+        "Wait for the blue circle...";
+
+    reactionWaiting = true;
+
+    const delay =
+        1500 +
+        Math.random() * 3000;
+
+    reactionTimer =
+        setTimeout(function() {
+
+            circle.style.display = "block";
+
+            reactionStart = performance.now();
+
+            status.textContent =
+                "TAP NOW!";
+
+        }, delay);
+
+}
+
+
+function reactionClicked() {
+
+    if (!reactionWaiting || !reactionStart) {
+
+        return;
+    }
+
+    const reactionTime =
+        Math.round(
+            performance.now() -
+            reactionStart
+        );
+
+    reactionWaiting = false;
+
+    reactionStart = null;
+
+    document.getElementById("reactionCircle")
+        .style.display = "none";
+
+    reactionAttempts++;
+
+    totalAttempts++;
+
+    if (
+        bestReaction === null ||
+        reactionTime < bestReaction
+    ) {
+
+        bestReaction = reactionTime;
+
+    }
+
+    let points = 0;
+
+    if (reactionTime < 400) {
+
+        points = 30;
+
+    } else if (reactionTime < 700) {
+
+        points = 20;
+
+    } else {
+
+        points = 10;
+
+    }
+
+    reactionScore += points;
+
+    totalScore += points;
+
+    document.getElementById("reactionStatus")
+        .textContent =
+        reactionTime +
+        " ms — +" +
+        points +
+        " points";
+
+    document.getElementById("bestReaction")
+        .textContent =
+        bestReaction + " ms";
+
+    document.getElementById("reactionAttempts")
+        .textContent =
+        reactionAttempts;
+
+    document.getElementById("reactionScore")
+        .textContent =
+        reactionScore;
+
+    addLog(
+        "Reaction Challenge: " +
+        reactionTime +
+        " ms."
+    );
+
+    saveEvent("reaction_result", {
+
+        reactionTime: reactionTime,
+
+        points: points,
+
+        attempt: reactionAttempts
+
+    });
+
+    if (
+        reactionAttempts >= 3 &&
+        !reactionCompleted
+    ) {
+
+        reactionCompleted = true;
+
+        if (gamesCompleted < 4) {
+
+            gamesCompleted++;
+
+        }
+
+        saveEvent("game_completed", {
+
+            game: "Reaction Challenge",
+
+            score: reactionScore,
+
+            bestReaction: bestReaction,
+
+            attempts: reactionAttempts
+
+        });
+
+        addLog(
+            "Reaction Challenge completed."
+        );
+
+    }
+
+    updateOverallStats();
+
+    saveSessionData();
+
+}
+
+
+function finishReactionIfNeeded() {
+
+    if (reactionTimer) {
+
+        clearTimeout(reactionTimer);
+
+    }
+
+}
+
+
+/* =========================================================
+   INITIALIZATION
+   ========================================================= */
+
+window.addEventListener("load", function() {
+
+    restartMemory();
+
+    restartObjectGame();
+
+    updateOverallStats();
+
+    addLog(
+        "CognitiveCare loaded successfully."
+    );
+
+});
+
+
+/* =========================================================
+   PAGE CLOSE
+   ========================================================= */
+
+window.addEventListener("beforeunload", function() {
+
+    if (sessionStarted) {
+
+        saveSessionData({
+
+            status: "paused"
+
+        });
+
+    }
+
+});
 
 </script>
 
